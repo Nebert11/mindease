@@ -60,7 +60,8 @@ app.use('/api/', limiter);
 // CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'http://localhost:5173'
+  'http://localhost:5173',
+  'https://mindease-two-iota.vercel.app'
 ];
 app.use(cors({
   origin: function(origin, callback) {
