@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { Menu, X, Brain, User, LogOut, Settings } from 'lucide-react';
+import { Menu, X, Brain, User, LogOut, Settings, Sun, Moon } from 'lucide-react';
+import { useTheme } from '../../context/ThemeContext';
 
 const Header: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = () => {
     logout();
@@ -15,8 +17,9 @@ const Header: React.FC = () => {
     setIsUserMenuOpen(false);
   };
 
+  // Update navigation to conditionally set Home href
   const navigation = [
-    { name: 'Home', href: '/' },
+    { name: 'Home', href: user ? '/dashboard' : '/' },
     { name: 'About', href: '/about' },
     { name: 'Therapists', href: '/therapists' },
     { name: 'Blog', href: '/blog' },
@@ -24,13 +27,13 @@ const Header: React.FC = () => {
   ];
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
+    <header className="bg-white shadow-sm sticky top-0 z-50 dark:bg-gray-800 dark:text-gray-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <Brain className="h-8 w-8 text-blue-600" />
-            <span className="text-xl font-bold text-gray-900">MindEase</span>
+            <span className="text-xl font-bold text-gray-900 dark:text-gray-100">MindEase</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -39,12 +42,25 @@ const Header: React.FC = () => {
               <Link
                 key={item.name}
                 to={item.href}
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 dark:text-gray-200 dark:hover:text-blue-400"
               >
                 {item.name}
               </Link>
             ))}
           </nav>
+
+          {/* Theme Toggle */}
+          <button
+            onClick={toggleTheme}
+            className="ml-4 p-2 rounded-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors"
+            aria-label="Toggle theme"
+          >
+            {theme === 'dark' ? (
+              <Sun className="h-5 w-5 text-yellow-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-gray-700" />
+            )}
+          </button>
 
           {/* User Menu */}
           <div className="flex items-center space-x-4">

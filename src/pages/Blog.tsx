@@ -94,48 +94,44 @@ const Blog: React.FC = () => {
   const featuredPost = blogPosts[0];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <h1 className="text-4xl font-bold text-gray-900 mb-4">Mental Health Resources</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">Mental Health Resources</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-white">
             Expert insights, practical tips, and evidence-based strategies for your mental wellness journey.
           </p>
         </div>
 
         {/* Search and Filter */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
-          <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
-            <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="text"
-                  placeholder="Search articles..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                {categories.map(category => (
-                  <option key={category} value={category}>
-                    {category === 'all' ? 'All Categories' : category}
-                  </option>
-                ))}
-              </select>
-            </div>
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              placeholder="Search blog posts..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+            />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+            >
+              <option value="all">All</option>
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category === 'all' ? 'All Categories' : category}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
         {/* Featured Post */}
         {featuredPost && (
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden mb-12">
+          <div className="bg-white rounded-lg shadow-md p-8 mb-12 dark:bg-gray-800 dark:text-white">
             <div className="md:flex">
               <div className="md:w-1/2">
                 <img
@@ -169,9 +165,9 @@ const Blog: React.FC = () => {
         )}
 
         {/* Blog Posts Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredPosts.slice(1).map((post) => (
-            <div key={post.id} className="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <div key={post.id} className="bg-white rounded-lg shadow-md p-6 dark:bg-gray-800 dark:text-white">
               <img
                 src={post.imageUrl}
                 alt={post.title}
@@ -212,25 +208,25 @@ const Blog: React.FC = () => {
 
         {filteredPosts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500 text-lg">No articles found matching your criteria.</p>
-            <p className="text-gray-400 mt-2">Try adjusting your search or filters.</p>
+            <p className="text-gray-500 text-lg dark:text-gray-400">No articles found matching your criteria.</p>
+            <p className="text-gray-400 mt-2 dark:text-gray-500">Try adjusting your search or filters.</p>
           </div>
         )}
 
         {/* Newsletter Section */}
-        <div className="bg-blue-600 text-white rounded-lg p-8 mt-12">
+        <div className="bg-blue-600 text-white rounded-lg p-8 mt-12 dark:bg-blue-700 dark:text-gray-100">
           <div className="text-center">
-            <h2 className="text-2xl font-bold mb-4">Stay Updated</h2>
-            <p className="text-blue-100 mb-6">
+            <h2 className="text-2xl font-bold mb-4 dark:text-gray-100">Stay Updated</h2>
+            <p className="text-blue-100 mb-6 dark:text-blue-300">
               Get the latest mental health insights and resources delivered to your inbox.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-1 px-4 py-2 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                className="flex-1 px-4 py-2 rounded-md text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-300 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
               />
-              <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors">
+              <button className="bg-white text-blue-600 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-gray-600">
                 Subscribe
               </button>
             </div>

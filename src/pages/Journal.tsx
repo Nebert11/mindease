@@ -1,36 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { PlusCircle, BookOpen, Search, Filter, Calendar, Heart, Lock, Globe } from 'lucide-react';
 import { JournalEntry } from '../types';
 import Button from '../components/ui/Button';
 
 const Journal: React.FC = () => {
-  const { user } = useAuth();
-  const [entries, setEntries] = useState<JournalEntry[]>([
-    {
-      id: '1',
-      userId: user?.id || '1',
-      title: 'Morning Reflections',
-      content: 'Today I woke up feeling grateful for the small things. The sunlight streaming through my window reminded me that each day is a new opportunity to grow and heal.',
-      mood: 7,
-      tags: ['gratitude', 'morning', 'positivity'],
-      isPrivate: true,
-      createdAt: new Date(Date.now() - 86400000), // Yesterday
-      updatedAt: new Date(Date.now() - 86400000)
-    },
-    {
-      id: '2',
-      userId: user?.id || '1',
-      title: 'Therapy Session Notes',
-      content: 'Had a breakthrough in therapy today. We talked about my patterns of negative self-talk and learned some CBT techniques to challenge those thoughts.',
-      mood: 8,
-      tags: ['therapy', 'breakthrough', 'cbt'],
-      isPrivate: true,
-      createdAt: new Date(Date.now() - 172800000), // 2 days ago
-      updatedAt: new Date(Date.now() - 172800000)
-    }
-  ]);
-
+  const { user, token } = useAuth();
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [isWriting, setIsWriting] = useState(false);
   const [newEntry, setNewEntry] = useState({
     title: '',
@@ -41,31 +17,83 @@ const Journal: React.FC = () => {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [moodFilter, setMoodFilter] = useState('all');
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const handleCreateEntry = () => {
-    if (!newEntry.title.trim() || !newEntry.content.trim()) return;
-
-    const entry: JournalEntry = {
-      id: Date.now().toString(),
-      userId: user?.id || '1',
-      title: newEntry.title,
-      content: newEntry.content,
-      mood: newEntry.mood,
-      tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(Boolean),
-      isPrivate: newEntry.isPrivate,
-      createdAt: new Date(),
-      updatedAt: new Date()
+  useEffect(() => {
+    // Fetch journal entries from backend
+    const fetchEntries = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch('/api/journal', {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const data = await res.json();
+        if (res.ok && Array.isArray(data.entries)) {
+          setEntries(data.entries.map((e: any) => ({
+            ...e,
+            createdAt: new Date(e.createdAt),
+            updatedAt: new Date(e.updatedAt),
+          })));
+        }
+      } catch (err) {
+        // Optionally handle error
+      }
     };
+    fetchEntries();
+  }, [token]);
 
-    setEntries([entry, ...entries]);
-    setNewEntry({
-      title: '',
-      content: '',
-      mood: 5,
-      tags: '',
-      isPrivate: true
-    });
-    setIsWriting(false);
+  const handleCreateEntry = async () => {
+    setError(null);
+    setSuccess(false);
+    if (!newEntry.title.trim() || !newEntry.content.trim()) return;
+    try {
+      const res = await fetch('/api/journal', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          title: newEntry.title,
+          content: newEntry.content,
+          mood: newEntry.mood,
+          tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+          isPrivate: newEntry.isPrivate,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || 'Failed to save entry.');
+        return;
+      }
+      const entry: JournalEntry = {
+        id: data.entry?.id || Date.now().toString(),
+        userId: user?.id || '1',
+        title: newEntry.title,
+        content: newEntry.content,
+        mood: newEntry.mood,
+        tags: newEntry.tags.split(',').map(tag => tag.trim()).filter(Boolean),
+        isPrivate: newEntry.isPrivate,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      setEntries([entry, ...entries]);
+      setNewEntry({
+        title: '',
+        content: '',
+        mood: 5,
+        tags: '',
+        isPrivate: true
+      });
+      setIsWriting(false);
+      setSuccess(true);
+    } catch (err) {
+      setError('Failed to save entry.');
+    }
   };
 
   const filteredEntries = entries.filter(entry => {
@@ -82,10 +110,10 @@ const Journal: React.FC = () => {
   });
 
   const getMoodColor = (mood: number) => {
-    if (mood >= 8) return 'text-green-600';
-    if (mood >= 6) return 'text-yellow-600';
-    if (mood >= 4) return 'text-orange-600';
-    return 'text-red-600';
+    if (mood >= 8) return 'text-green-600 dark:text-green-400';
+    if (mood >= 6) return 'text-yellow-600 dark:text-yellow-300';
+    if (mood >= 4) return 'text-orange-600 dark:text-orange-300';
+    return 'text-red-600 dark:text-red-400';
   };
 
   const getMoodEmoji = (mood: number) => {
@@ -98,47 +126,47 @@ const Journal: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center dark:bg-gray-900">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">Please log in to access your journal.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 dark:text-gray-100">Access Denied</h1>
+          <p className="text-gray-600 dark:text-gray-300">Please log in to access your journal.</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <BookOpen className="h-10 w-10 text-blue-600 mr-3" />
-            <h1 className="text-3xl font-bold text-gray-900">My Journal</h1>
+            <BookOpen className="h-10 w-10 text-blue-600 mr-3 dark:text-blue-400" />
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">My Journal</h1>
           </div>
-          <p className="text-xl text-gray-600">
+          <p className="text-xl text-gray-600 dark:text-white">
             A safe space to express your thoughts, track your mood, and reflect on your journey.
           </p>
         </div>
 
         {/* Action Bar */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-6 dark:bg-gray-800 dark:text-gray-100">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between space-y-4 md:space-y-0">
             <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-gray-300" />
                 <input
                   type="text"
                   placeholder="Search entries..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
                 />
               </div>
               <select
                 value={moodFilter}
                 onChange={(e) => setMoodFilter(e.target.value)}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
               >
                 <option value="all">All Moods</option>
                 <option value="positive">Positive (7-10)</option>
@@ -162,6 +190,8 @@ const Journal: React.FC = () => {
             <div className="bg-white rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <div className="p-6">
                 <h2 className="text-2xl font-bold text-gray-900 mb-4">New Journal Entry</h2>
+                {error && <div className="text-red-600 text-center mb-2">{error}</div>}
+                {success && <div className="text-green-600 text-center mb-2">Entry saved successfully!</div>}
                 
                 <div className="space-y-4">
                   <div>
@@ -249,12 +279,12 @@ const Journal: React.FC = () => {
         {/* Entries */}
         <div className="space-y-6">
           {filteredEntries.map((entry) => (
-            <div key={entry.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div key={entry.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:text-white">
               <div className="p-6">
                 <div className="flex items-start justify-between mb-4">
                   <div className="flex-1">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">{entry.title}</h3>
-                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                    <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">{entry.title}</h3>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-white">
                       <div className="flex items-center">
                         <Calendar className="h-4 w-4 mr-1" />
                         <span>{entry.createdAt.toLocaleDateString()}</span>
@@ -278,14 +308,14 @@ const Journal: React.FC = () => {
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-gray-700 leading-relaxed">{entry.content}</p>
+                  <p className="text-gray-700 leading-relaxed dark:text-white">{entry.content}</p>
                 </div>
 
                 {entry.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
-                    {entry.tags.map((tag, index) => (
+                    {entry.tags.map((tag, i) => (
                       <span
-                        key={index}
+                        key={tag + '-' + i}
                         className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
                       >
                         #{tag}
@@ -301,8 +331,8 @@ const Journal: React.FC = () => {
         {filteredEntries.length === 0 && (
           <div className="text-center py-12">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-500 text-lg">No journal entries found.</p>
-            <p className="text-gray-400 mt-2">
+            <p className="text-gray-500 text-lg dark:text-white">No journal entries found.</p>
+            <p className="text-gray-400 mt-2 dark:text-white">
               {searchTerm || moodFilter !== 'all' 
                 ? 'Try adjusting your search or filters.' 
                 : 'Start by writing your first entry!'}

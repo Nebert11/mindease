@@ -142,18 +142,18 @@ const Chat: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="bg-white rounded-lg shadow-sm mb-6 p-6">
+        <div className="bg-white rounded-lg shadow-sm mb-6 p-6 dark:bg-gray-800 dark:text-gray-100">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="bg-blue-100 p-3 rounded-full">
-                <Bot className="h-8 w-8 text-blue-600" />
+              <div className="bg-blue-100 p-3 rounded-full dark:bg-blue-900">
+                <Bot className="h-8 w-8 text-blue-600 dark:text-blue-300" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">MindEase AI Assistant</h1>
-                <p className="text-gray-600">Your 24/7 mental health support companion</p>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">MindEase AI Assistant</h1>
+                <p className="text-gray-600 dark:text-white">Your 24/7 mental health support companion</p>
               </div>
             </div>
             <div className="flex space-x-2">
@@ -170,7 +170,7 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Chat Container */}
-        <div className="bg-white rounded-lg shadow-sm flex flex-col h-96 md:h-[600px]">
+        <div className="bg-white rounded-lg shadow-sm flex flex-col h-96 md:h-[600px] dark:bg-gray-800 dark:text-gray-100">
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4">
             {messages.map((message) => (
@@ -181,23 +181,23 @@ const Chat: React.FC = () => {
                 <div className={`flex space-x-3 max-w-xs md:max-w-md ${message.sender === 'user' ? 'flex-row-reverse space-x-reverse' : ''}`}>
                   <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
                     message.sender === 'user' 
-                      ? 'bg-blue-600' 
-                      : 'bg-gray-100'
+                      ? 'bg-blue-600 dark:bg-blue-500' 
+                      : 'bg-gray-100 dark:bg-gray-700'
                   }`}>
                     {message.sender === 'user' ? (
                       <User className="h-5 w-5 text-white" />
                     ) : (
-                      <Bot className="h-5 w-5 text-gray-600" />
+                      <Bot className="h-5 w-5 text-gray-600 dark:text-gray-200" />
                     )}
                   </div>
                   <div className={`rounded-lg px-4 py-2 ${
                     message.sender === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-100 text-gray-900'
+                      ? 'bg-blue-600 text-white dark:bg-blue-500 dark:text-white'
+                      : 'bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-white'
                   }`}>
                     <p className="text-sm">{message.content}</p>
                     <p className={`text-xs mt-1 ${
-                      message.sender === 'user' ? 'text-blue-100' : 'text-gray-500'
+                      message.sender === 'user' ? 'text-blue-100 dark:text-white' : 'text-gray-500 dark:text-white'
                     }`}>
                       {message.timestamp.toLocaleTimeString()}
                     </p>

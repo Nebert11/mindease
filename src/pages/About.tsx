@@ -63,15 +63,15 @@ const About: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       {/* Hero Section */}
-      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20">
+      <section className="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 dark:from-blue-800 dark:to-purple-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center">
-            <h1 className="text-4xl md:text-5xl font-bold mb-6">
+            <h1 className="text-4xl md:text-5xl font-bold mb-6 dark:text-white">
               Transforming Mental Healthcare
             </h1>
-            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto">
+            <p className="text-xl md:text-2xl mb-8 max-w-3xl mx-auto dark:text-white">
               We're on a mission to make quality mental health support accessible, affordable, and available to everyone, everywhere.
             </p>
           </div>
@@ -83,21 +83,21 @@ const About: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Mission</h2>
-              <p className="text-lg text-gray-600 mb-6">
+              <h2 className="text-3xl font-bold text-gray-900 mb-6 dark:text-white">Our Mission</h2>
+              <p className="text-lg text-gray-600 mb-6 dark:text-white">
                 Mental health challenges affect millions of people worldwide, yet access to quality care remains limited by geography, cost, and stigma. We're changing that.
               </p>
-              <p className="text-lg text-gray-600 mb-6">
+              <p className="text-lg text-gray-600 mb-6 dark:text-white">
                 MindEase combines the expertise of licensed therapists with AI-powered support to create a comprehensive, accessible mental health platform that meets you where you are.
               </p>
               <div className="grid grid-cols-2 gap-4 mt-8">
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600">100K+</div>
-                  <div className="text-gray-600">Lives Impacted</div>
+                  <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">100K+</div>
+                  <div className="text-gray-600 dark:text-gray-300">Lives Impacted</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-2xl font-bold text-green-600">500+</div>
-                  <div className="text-gray-600">Licensed Therapists</div>
+                  <div className="text-2xl font-bold text-green-600 dark:text-green-400">500+</div>
+                  <div className="text-gray-600 dark:text-gray-300">Licensed Therapists</div>
                 </div>
               </div>
             </div>
@@ -116,8 +116,8 @@ const About: React.FC = () => {
       <section className="py-16 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Our Values</h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4 dark:text-white">Our Values</h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-white">
               These core principles guide everything we do at MindEase
             </p>
           </div>
@@ -128,8 +128,8 @@ const About: React.FC = () => {
                 <div className="bg-blue-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
                   <value.icon className="h-8 w-8 text-blue-600" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{value.title}</h3>
-                <p className="text-gray-600">{value.description}</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">{value.title}</h3>
+                <p className="text-gray-600 dark:text-white">{value.description}</p>
               </div>
             ))}
           </div>
@@ -164,7 +164,7 @@ const About: React.FC = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-blue-600 text-white">
+      <section className="py-16 bg-blue-600 text-white dark:bg-blue-900 dark:text-blue-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
             <div>
@@ -188,17 +188,17 @@ const About: React.FC = () => {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 bg-white">
+      <section className="py-16 bg-white dark:bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">Ready to Begin Your Journey?</h2>
-          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 dark:text-white">Ready to Begin Your Journey?</h2>
+          <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto dark:text-white">
             Join thousands of individuals who have found support, healing, and growth through MindEase.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors">
+            <button className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors dark:bg-blue-500 dark:hover:bg-blue-600">
               Get Started Today
             </button>
-            <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-md hover:bg-gray-50 transition-colors">
+            <button className="border border-gray-300 text-gray-700 px-8 py-3 rounded-md hover:bg-gray-50 transition-colors dark:border-gray-600 dark:text-gray-200 dark:hover:bg-gray-800">
               Learn More
             </button>
           </div>

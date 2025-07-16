@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Star, Filter, MapPin, Clock, DollarSign, Video, MessageCircle } from 'lucide-react';
 import { Therapist } from '../types';
 import Button from '../components/ui/Button';
@@ -7,82 +7,15 @@ const Therapists: React.FC = () => {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
   const [selectedLocation, setSelectedLocation] = useState('all');
   const [priceRange, setPriceRange] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [therapists, setTherapists] = useState<Therapist[]>([]);
 
-  // Mock therapist data
-  const therapists: Therapist[] = [
-    {
-      id: '1',
-      email: 'sarah.johnson@mindease.com',
-      firstName: 'Dr. Sarah',
-      lastName: 'Johnson',
-      role: 'therapist',
-      avatar: 'https://images.pexels.com/photos/5212345/pexels-photo-5212345.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      specialties: ['Anxiety', 'Depression', 'Trauma'],
-      license: 'LCSW-12345',
-      experience: 8,
-      rating: 4.9,
-      hourlyRate: 120,
-      bio: 'Specializing in cognitive-behavioral therapy and trauma-informed care. I help clients develop coping strategies and build resilience.',
-      availability: [],
-      verified: true,
-      createdAt: new Date(),
-      isActive: true
-    },
-    {
-      id: '2',
-      email: 'michael.chen@mindease.com',
-      firstName: 'Dr. Michael',
-      lastName: 'Chen',
-      role: 'therapist',
-      avatar: 'https://images.pexels.com/photos/2182970/pexels-photo-2182970.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      specialties: ['Couples Therapy', 'Family Therapy', 'Communication'],
-      license: 'LMFT-67890',
-      experience: 12,
-      rating: 4.8,
-      hourlyRate: 140,
-      bio: 'Helping couples and families improve communication and strengthen relationships through evidence-based approaches.',
-      availability: [],
-      verified: true,
-      createdAt: new Date(),
-      isActive: true
-    },
-    {
-      id: '3',
-      email: 'emma.williams@mindease.com',
-      firstName: 'Dr. Emma',
-      lastName: 'Williams',
-      role: 'therapist',
-      avatar: 'https://images.pexels.com/photos/3912979/pexels-photo-3912979.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      specialties: ['Adolescent Therapy', 'ADHD', 'Behavioral Issues'],
-      license: 'LPC-54321',
-      experience: 6,
-      rating: 4.7,
-      hourlyRate: 100,
-      bio: 'Passionate about working with teens and young adults. Specializes in ADHD management and behavioral interventions.',
-      availability: [],
-      verified: true,
-      createdAt: new Date(),
-      isActive: true
-    },
-    {
-      id: '4',
-      email: 'david.brown@mindease.com',
-      firstName: 'Dr. David',
-      lastName: 'Brown',
-      role: 'therapist',
-      avatar: 'https://images.pexels.com/photos/1681010/pexels-photo-1681010.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
-      specialties: ['Addiction Recovery', 'Trauma', 'Men\'s Issues'],
-      license: 'LCDC-98765',
-      experience: 15,
-      rating: 4.9,
-      hourlyRate: 160,
-      bio: 'Experienced in addiction recovery and trauma therapy. Provides a safe space for healing and personal growth.',
-      availability: [],
-      verified: true,
-      createdAt: new Date(),
-      isActive: true
-    }
-  ];
+  useEffect(() => {
+    fetch('/api/therapists?limit=1000')
+      .then(res => res.json())
+      .then(data => setTherapists(data.therapists || []))
+      .catch(() => setTherapists([]));
+  }, []);
 
   const specialties = ['all', 'Anxiety', 'Depression', 'Trauma', 'Couples Therapy', 'Family Therapy', 'Addiction Recovery', 'ADHD'];
   const locations = ['all', 'New York', 'California', 'Texas', 'Florida'];
@@ -100,18 +33,18 @@ const Therapists: React.FC = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Find Your Perfect Therapist</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Connect with licensed, verified mental health professionals who specialize in your specific needs.
+          <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">Find a Therapist</h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-white">
+            Browse our network of licensed therapists and find the right fit for you.
           </p>
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-lg shadow-sm p-6 mb-8">
+        <div className="bg-white rounded-lg shadow-sm p-6 mb-8 dark:bg-gray-800 dark:text-gray-100">
           <div className="flex items-center space-x-2 mb-4">
             <Filter className="h-5 w-5 text-gray-600" />
             <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
@@ -123,7 +56,7 @@ const Therapists: React.FC = () => {
               <select
                 value={selectedSpecialty}
                 onChange={(e) => setSelectedSpecialty(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
               >
                 {specialties.map(specialty => (
                   <option key={specialty} value={specialty}>
@@ -138,7 +71,7 @@ const Therapists: React.FC = () => {
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
               >
                 {locations.map(location => (
                   <option key={location} value={location}>
@@ -153,7 +86,7 @@ const Therapists: React.FC = () => {
               <select
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
               >
                 {priceRanges.map(range => (
                   <option key={range} value={range}>
@@ -165,10 +98,21 @@ const Therapists: React.FC = () => {
           </div>
         </div>
 
+        {/* Search and Filter UI */}
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8 gap-4 dark:text-white">
+          <input
+            type="text"
+            placeholder="Search therapists..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+          />
+        </div>
+
         {/* Results */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredTherapists.map((therapist) => (
-            <div key={therapist.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
+            <div key={therapist.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:text-white">
               <div className="p-6">
                 <div className="flex items-start space-x-4">
                   <img
