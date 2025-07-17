@@ -14,6 +14,7 @@ import {
   Heart
 } from 'lucide-react';
 import Button from '../components/ui/Button';
+import io, { Socket } from 'socket.io-client';
 
 const Dashboard: React.FC = () => {
   const { user, token } = useAuth();
@@ -23,6 +24,7 @@ const Dashboard: React.FC = () => {
   const [averageMood, setAverageMood] = useState<number | null>(null);
   const [streak, setStreak] = useState<number | null>(null);
   const [sessionsCount, setSessionsCount] = useState<number | null>(null);
+  const [bookingNotifications, setBookingNotifications] = useState<any[]>([]);
   const API_BASE_URL: string = (import.meta.env.VITE_API_URL as string) ?? '';
 
   // Therapist dashboard state
@@ -161,7 +163,13 @@ const Dashboard: React.FC = () => {
         })
         .catch(() => { if (isMounted) setSessionsCount(null); 
         });
-      };
+    };
+    fetchData();
+    const interval = setInterval(fetchData, 15000); // poll every 15 seconds
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
   }, [token, API_BASE_URL]);
 
   useEffect(() => {
@@ -300,6 +308,24 @@ const Dashboard: React.FC = () => {
       clearInterval(interval);
     };
   }, [token, API_BASE_URL, user?.role]);
+
+  useEffect(() => {
+    if (!user || user.role !== 'therapist') return;
+    const socket = io(API_BASE_URL, {
+      transports: ['websocket'],
+      query: { userId: user._id },
+    });
+    socket.emit('join', user._id);
+    socket.on('newBooking', (data: any) => {
+      setBookingNotifications((prev) => [
+        { ...data, receivedAt: new Date() },
+        ...prev,
+      ]);
+    });
+    return () => {
+      socket.disconnect();
+    };
+  }, [user, API_BASE_URL]);
 
   if (!user) {
     return (
@@ -571,6 +597,20 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Therapist booking notifications */}
+      {user?.role === 'therapist' && bookingNotifications.length > 0 && (
+        <div className="fixed top-4 right-4 z-50 space-y-2">
+          {bookingNotifications.slice(0, 3).map((notif, idx) => (
+            <div key={idx} className="bg-blue-600 text-white px-4 py-3 rounded shadow-lg flex flex-col mb-2 animate-bounce-in">
+              <strong>New Booking!</strong>
+              <span>Patient: {notif.patientName}</span>
+              <span>Date: {new Date(notif.date).toLocaleString()}</span>
+              <span>Duration: {notif.duration} min</span>
+              <span>Type: {notif.sessionType}</span>
+            </div>
+          ))}
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">

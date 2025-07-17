@@ -3,6 +3,7 @@ const { body, validationResult } = require('express-validator');
 const Booking = require('../models/Booking');
 const User = require('../models/User');
 const auth = require('../middleware/auth');
+const io = require('../server').io; // Import io instance
 
 const router = express.Router();
 
@@ -60,6 +61,16 @@ router.post('/', auth, [
     });
 
     await booking.save();
+
+    // Notify therapist in real time
+    io.to(therapistId.toString()).emit('newBooking', {
+      patientName: booking.patientId.firstName + ' ' + booking.patientId.lastName,
+      patientEmail: booking.patientId.email,
+      date: booking.sessionDate,
+      bookingId: booking._id,
+      duration: booking.duration,
+      sessionType: booking.sessionType
+    });
 
     // Populate booking details for response
     await booking.populate([
