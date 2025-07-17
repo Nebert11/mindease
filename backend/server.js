@@ -61,7 +61,8 @@ app.use('/api/', limiter);
 const allowedOrigins = [
   'http://localhost:3000',
   'http://localhost:5173',
-  'https://mindease-two-iota.vercel.app'
+  'https://mindease-two-iota.vercel.app', // old Vercel URL
+  'https://mindease-7k5ci22zy-neberts-projects.vercel.app' // new Vercel URL
 ];
 app.use(cors({
   origin: function(origin, callback) {

@@ -91,7 +91,7 @@ const Dashboard: React.FC = () => {
               streakCount = 1;
               lastDate = entryDate;
             } else {
-              const diff = (lastDate - entryDate) / (1000 * 60 * 60 * 24);
+              const diff = (lastDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24);
               if (diff === 1) {
                 streakCount++;
                 lastDate = entryDate;
