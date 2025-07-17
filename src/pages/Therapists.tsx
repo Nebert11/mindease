@@ -9,6 +9,12 @@ const Therapists: React.FC = () => {
   const [priceRange, setPriceRange] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [therapists, setTherapists] = useState<Therapist[]>([]);
+  const [selectedTherapist, setSelectedTherapist] = useState<Therapist | null>(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingDate, setBookingDate] = useState('');
+  const [bookingLoading, setBookingLoading] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState('');
+  const [bookingError, setBookingError] = useState('');
 
   useEffect(() => {
     const API_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -33,8 +39,76 @@ const Therapists: React.FC = () => {
     return specialtyMatch && priceMatch;
   });
 
+  function handleBookSession(therapist: Therapist) {
+    setSelectedTherapist(therapist);
+    setShowBookingModal(true);
+    setBookingDate('');
+    setBookingSuccess('');
+    setBookingError('');
+  }
+
+  async function submitBooking() {
+    if (!selectedTherapist || !bookingDate) return;
+    setBookingLoading(true);
+    setBookingSuccess('');
+    setBookingError('');
+    try {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_BASE_URL}/api/bookings`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          therapistId: selectedTherapist._id,
+          sessionDate: bookingDate,
+        }),
+      });
+      if (res.ok) {
+        setBookingSuccess('Session booked successfully!');
+        setShowBookingModal(false);
+      } else {
+        const data = await res.json();
+        setBookingError(data.message || 'Booking failed.');
+      }
+    } catch (err) {
+      setBookingError('Booking failed.');
+    } finally {
+      setBookingLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      {/* Booking Modal */}
+      {showBookingModal && selectedTherapist && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-lg relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setShowBookingModal(false)}
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Book Session with {selectedTherapist.firstName} {selectedTherapist.lastName}</h2>
+            <label className="block mb-2 text-sm font-medium">Select Date & Time</label>
+            <input
+              type="datetime-local"
+              value={bookingDate}
+              onChange={e => setBookingDate(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+            />
+            {bookingError && <div className="text-red-500 mb-2">{bookingError}</div>}
+            {bookingSuccess && <div className="text-green-500 mb-2">{bookingSuccess}</div>}
+            <button
+              onClick={submitBooking}
+              disabled={bookingLoading || !bookingDate}
+              className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            >
+              {bookingLoading ? 'Booking...' : 'Confirm Booking'}
+            </button>
+          </div>
+        </div>
+      )}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="text-center mb-8">
@@ -178,7 +252,7 @@ const Therapists: React.FC = () => {
                         <MessageCircle className="h-4 w-4" />
                         <span>Message</span>
                       </Button>
-                      <Button size="sm" className="flex items-center space-x-1">
+                      <Button size="sm" className="flex items-center space-x-1" onClick={() => handleBookSession(therapist)}>
                         <Video className="h-4 w-4" />
                         <span>Book Session</span>
                       </Button>
