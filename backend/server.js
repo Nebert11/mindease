@@ -58,22 +58,8 @@ const limiter = rateLimit({
 app.use('/api/', limiter);
 
 // CORS configuration
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  'https://mindease-two-iota.vercel.app', // old Vercel URL
-  'https://mindease-7k5ci22zy-neberts-projects.vercel.app' // new Vercel URL
-];
 app.use(cors({
-  origin: function(origin, callback) {
-    // allow requests with no origin (like mobile apps, curl, etc.)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
-    } else {
-      return callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: true, // Reflects the request origin
   credentials: true
 }));
 
