@@ -55,10 +55,13 @@ const Therapists: React.FC = () => {
     setBookingError('');
     try {
       const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+      const token = localStorage.getItem('mindease_token');
       const res = await fetch(`${API_BASE_URL}/api/bookings`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+        },
         body: JSON.stringify({
           therapistId: selectedTherapist._id,
           sessionDate: bookingDate,
@@ -204,7 +207,7 @@ const Therapists: React.FC = () => {
               <div className="p-6">
                 <div className="flex items-start space-x-4">
                   <img
-                    src={therapist.avatar || "/default-avatar.png"}
+                    src={therapist.avatar || "/src/assets/default-avatar.png"}
                     alt={`${therapist.firstName} ${therapist.lastName}`}
                     className="w-16 h-16 rounded-full object-cover"
                   />
