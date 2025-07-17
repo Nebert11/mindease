@@ -12,6 +12,7 @@ const Therapists: React.FC = () => {
   const [selectedTherapist, setSelectedTherapist] = useState<Therapist | null>(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
   const [bookingDate, setBookingDate] = useState('');
+  const [bookingDuration, setBookingDuration] = useState(60); // default 60 minutes
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
   const [bookingError, setBookingError] = useState('');
@@ -48,7 +49,7 @@ const Therapists: React.FC = () => {
   }
 
   async function submitBooking() {
-    if (!selectedTherapist || !bookingDate) return;
+    if (!selectedTherapist || !bookingDate || !bookingDuration) return;
     setBookingLoading(true);
     setBookingSuccess('');
     setBookingError('');
@@ -61,6 +62,7 @@ const Therapists: React.FC = () => {
         body: JSON.stringify({
           therapistId: selectedTherapist._id,
           sessionDate: bookingDate,
+          duration: bookingDuration,
         }),
       });
       if (res.ok) {
@@ -95,8 +97,19 @@ const Therapists: React.FC = () => {
               type="datetime-local"
               value={bookingDate}
               onChange={e => setBookingDate(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
             />
+            <label className="block mb-2 text-sm font-medium">Session Duration (minutes)</label>
+            <select
+              value={bookingDuration}
+              onChange={e => setBookingDuration(Number(e.target.value))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
+            >
+              <option value={30}>30</option>
+              <option value={60}>60</option>
+              <option value={90}>90</option>
+              <option value={120}>120</option>
+            </select>
             {bookingError && <div className="text-red-500 mb-2">{bookingError}</div>}
             {bookingSuccess && <div className="text-green-500 mb-2">{bookingSuccess}</div>}
             <button
