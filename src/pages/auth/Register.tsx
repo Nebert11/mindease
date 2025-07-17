@@ -23,13 +23,25 @@ const Register: React.FC = () => {
     e.preventDefault();
     setError('');
 
+    // Frontend validation for required fields
+    if (!formData.firstName.trim() || !formData.lastName.trim() || !formData.email.trim() || !formData.password || !formData.role) {
+      setError('All fields are required.');
+      return;
+    }
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(formData.email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-
-    if (formData.password.length < 8) {
-      setError('Password must be at least 8 characters long');
+    if (!['patient', 'therapist'].includes(formData.role)) {
+      setError('Role must be patient or therapist.');
       return;
     }
 
