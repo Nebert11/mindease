@@ -159,7 +159,9 @@ const Dashboard: React.FC = () => {
           if (data && typeof data.totalSessions === 'number') setSessionsCount(data.totalSessions);
           else setSessionsCount(null);
         })
-        .catch(() => { if (isMounted) setSessionsCount(null); });
+        .catch(() => { if (isMounted) setSessionsCount(null); 
+        });
+      };
   }, [token, API_BASE_URL]);
 
   useEffect(() => {
