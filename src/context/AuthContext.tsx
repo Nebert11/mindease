@@ -88,26 +88,32 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return false;
   };
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
   const register = async (userData: Partial<User> & { password: string }): Promise<boolean> => {
     setIsLoading(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    const newUser: User = {
-      id: Date.now().toString(),
-      email: userData.email!,
-      firstName: userData.firstName!,
-      lastName: userData.lastName!,
-      role: userData.role || 'patient',
-      createdAt: new Date(),
-      isActive: true
-    };
-    
-    setUser(newUser);
-    localStorage.setItem('mindease_user', JSON.stringify(newUser));
-    setIsLoading(false);
-    return true;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(userData)
+      });
+      const data = await res.json();
+      if (res.ok && data.token && data.user) {
+        setUser(data.user);
+        setToken(data.token);
+        localStorage.setItem('mindease_user', JSON.stringify(data.user));
+        localStorage.setItem('mindease_token', data.token);
+        setIsLoading(false);
+        return true;
+      } else {
+        setIsLoading(false);
+        return false;
+      }
+    } catch (err) {
+      setIsLoading(false);
+      return false;
+    }
   };
 
   const logout = () => {
