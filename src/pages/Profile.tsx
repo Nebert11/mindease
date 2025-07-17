@@ -7,6 +7,7 @@ const Profile: React.FC = () => {
   const { user, token, updateUser } = useAuth();
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
   // Mock user data (replace with real user data from context or props)
   const profile = {
@@ -29,7 +30,7 @@ const Profile: React.FC = () => {
     const formData = new FormData();
     formData.append('avatar', file);
     try {
-      const res = await fetch('http://localhost:5000/api/users/avatar', {
+      const res = await fetch(`${API_BASE_URL}/api/users/avatar`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`
@@ -55,7 +56,7 @@ const Profile: React.FC = () => {
     if (!token) return;
     setUploading(true);
     try {
-      const res = await fetch('http://localhost:5000/api/users/avatar', {
+      const res = await fetch(`${API_BASE_URL}/api/users/avatar`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`

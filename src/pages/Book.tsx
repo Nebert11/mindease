@@ -21,10 +21,11 @@ const Book: React.FC = () => {
   });
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     // Fetch therapists
-    fetch('/api/therapists?limit=1000')
+    fetch(`${API_BASE_URL}/api/therapists?limit=1000`)
       .then(res => res.json())
       .then(data => setTherapists(data.therapists || []))
       .catch(() => setTherapists([]));
@@ -32,7 +33,7 @@ const Book: React.FC = () => {
     const fetchBookings = async () => {
       if (!token) return;
       try {
-        const res = await fetch('/api/bookings', {
+        const res = await fetch(`${API_BASE_URL}/api/bookings`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -63,7 +64,7 @@ const Book: React.FC = () => {
     // Combine date and time into ISO string
     const sessionDate = new Date(`${form.date}T${form.time}`);
     try {
-      const res = await fetch('/api/bookings', {
+      const res = await fetch(`${API_BASE_URL}/api/bookings`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

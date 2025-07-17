@@ -16,13 +16,14 @@ const Mood: React.FC = () => {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     // Fetch mood entries from backend
     const fetchEntries = async () => {
       if (!token) return;
       try {
-        const res = await fetch('/api/mood', {
+        const res = await fetch(`${API_BASE_URL}/api/mood`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -51,7 +52,7 @@ const Mood: React.FC = () => {
     setError(null);
     setSuccess(false);
     try {
-      const res = await fetch('/api/mood', {
+      const res = await fetch(`${API_BASE_URL}/api/mood`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

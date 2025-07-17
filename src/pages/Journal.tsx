@@ -19,13 +19,14 @@ const Journal: React.FC = () => {
   const [moodFilter, setMoodFilter] = useState('all');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     // Fetch journal entries from backend
     const fetchEntries = async () => {
       if (!token) return;
       try {
-        const res = await fetch('/api/journal', {
+        const res = await fetch(`${API_BASE_URL}/api/journal`, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
@@ -51,7 +52,7 @@ const Journal: React.FC = () => {
     setSuccess(false);
     if (!newEntry.title.trim() || !newEntry.content.trim()) return;
     try {
-      const res = await fetch('/api/journal', {
+      const res = await fetch(`${API_BASE_URL}/api/journal`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

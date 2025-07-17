@@ -11,7 +11,8 @@ const Therapists: React.FC = () => {
   const [therapists, setTherapists] = useState<Therapist[]>([]);
 
   useEffect(() => {
-    fetch('/api/therapists?limit=1000')
+    const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+    fetch(`${API_BASE_URL}/api/therapists?limit=1000`)
       .then(res => res.json())
       .then(data => setTherapists(data.therapists || []))
       .catch(() => setTherapists([]));

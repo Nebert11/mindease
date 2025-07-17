@@ -24,11 +24,12 @@ const Dashboard: React.FC = () => {
   const [streak, setStreak] = useState<number | null>(null);
   const [sessionsCount, setSessionsCount] = useState<number | null>(null);
   const { token } = useAuth();
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
   useEffect(() => {
     if (!token) return;
     // Fetch upcoming appointments
-    fetch('http://localhost:5000/api/bookings?upcoming=true', {
+    fetch(`${API_BASE_URL}/api/bookings?upcoming=true`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -37,7 +38,7 @@ const Dashboard: React.FC = () => {
       });
 
     // Fetch recent journal entries
-    fetch('http://localhost:5000/api/journal?limit=3', {
+    fetch(`${API_BASE_URL}/api/journal?limit=3`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -55,7 +56,7 @@ const Dashboard: React.FC = () => {
       });
 
     // Fetch recent mood entries
-    fetch('http://localhost:5000/api/mood?limit=3', {
+    fetch(`${API_BASE_URL}/api/mood?limit=3`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -73,7 +74,7 @@ const Dashboard: React.FC = () => {
       });
 
     // Fetch mood insights (average mood, streak)
-    fetch('http://localhost:5000/api/mood/insights/overview', {
+    fetch(`${API_BASE_URL}/api/mood/insights/overview`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -104,7 +105,7 @@ const Dashboard: React.FC = () => {
       });
 
     // Fetch user stats for sessions count
-    fetch('http://localhost:5000/api/users/stats', {
+    fetch(`${API_BASE_URL}/api/users/stats`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
