@@ -23,12 +23,12 @@ const Therapists: React.FC = () => {
   const priceRanges = ['all', '$50-$100', '$100-$150', '$150-$200', '$200+'];
 
   const filteredTherapists = therapists.filter(therapist => {
-    const specialtyMatch = selectedSpecialty === 'all' || therapist.specialties.includes(selectedSpecialty);
+    const specialtyMatch = selectedSpecialty === 'all' || (therapist.therapistProfile?.specialties || []).includes(selectedSpecialty);
     const priceMatch = priceRange === 'all' || 
-      (priceRange === '$50-$100' && therapist.hourlyRate >= 50 && therapist.hourlyRate < 100) ||
-      (priceRange === '$100-$150' && therapist.hourlyRate >= 100 && therapist.hourlyRate < 150) ||
-      (priceRange === '$150-$200' && therapist.hourlyRate >= 150 && therapist.hourlyRate < 200) ||
-      (priceRange === '$200+' && therapist.hourlyRate >= 200);
+      (priceRange === '$50-$100' && (therapist.therapistProfile?.hourlyRate || 0) >= 50 && (therapist.therapistProfile?.hourlyRate || 0) < 100) ||
+      (priceRange === '$100-$150' && (therapist.therapistProfile?.hourlyRate || 0) >= 100 && (therapist.therapistProfile?.hourlyRate || 0) < 150) ||
+      (priceRange === '$150-$200' && (therapist.therapistProfile?.hourlyRate || 0) >= 150 && (therapist.therapistProfile?.hourlyRate || 0) < 200) ||
+      (priceRange === '$200+' && (therapist.therapistProfile?.hourlyRate || 0) >= 200);
     
     return specialtyMatch && priceMatch;
   });
@@ -113,11 +113,11 @@ const Therapists: React.FC = () => {
         {/* Results */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {filteredTherapists.map((therapist) => (
-            <div key={therapist.id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:text-white">
+            <div key={therapist._id} className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow dark:bg-gray-800 dark:text-white">
               <div className="p-6">
                 <div className="flex items-start space-x-4">
                   <img
-                    src={therapist.avatar}
+                    src={therapist.avatar || "/default-avatar.png"}
                     alt={`${therapist.firstName} ${therapist.lastName}`}
                     className="w-16 h-16 rounded-full object-cover"
                   />
@@ -126,7 +126,7 @@ const Therapists: React.FC = () => {
                       <h3 className="text-xl font-semibold text-gray-900">
                         {therapist.firstName} {therapist.lastName}
                       </h3>
-                      {therapist.verified && (
+                      {therapist.therapistProfile?.verified && (
                         <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
                           Verified
                         </span>
@@ -136,27 +136,27 @@ const Therapists: React.FC = () => {
                     <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
                       <div className="flex items-center">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" />
-                        <span>{therapist.rating}</span>
+                        <span>{therapist.therapistProfile?.rating ?? 0}</span>
                       </div>
                       <div className="flex items-center">
                         <Clock className="h-4 w-4 mr-1" />
-                        <span>{therapist.experience} years exp</span>
+                        <span>{therapist.therapistProfile?.experience ?? 0} years exp</span>
                       </div>
                       <div className="flex items-center">
                         <DollarSign className="h-4 w-4 mr-1" />
-                        <span>${therapist.hourlyRate}/hour</span>
+                        <span>${therapist.therapistProfile?.hourlyRate ?? 0}/hour</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="mt-4">
-                  <p className="text-gray-600 text-sm mb-3">{therapist.bio}</p>
+                  <p className="text-gray-600 text-sm mb-3">{therapist.therapistProfile?.bio || ''}</p>
                   
                   <div className="mb-4">
                     <h4 className="text-sm font-medium text-gray-900 mb-2">Specialties</h4>
                     <div className="flex flex-wrap gap-2">
-                      {therapist.specialties.map((specialty, index) => (
+                      {(therapist.therapistProfile?.specialties || []).map((specialty, index) => (
                         <span
                           key={index}
                           className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full"
@@ -170,7 +170,7 @@ const Therapists: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <MapPin className="h-4 w-4" />
-                      <span>License: {therapist.license}</span>
+                      <span>License: {therapist.therapistProfile?.license || 'N/A'}</span>
                     </div>
                     
                     <div className="flex space-x-2">

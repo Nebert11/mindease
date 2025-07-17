@@ -10,15 +10,32 @@ export interface User {
   isActive: boolean;
 }
 
-export interface Therapist extends User {
-  specialties: string[];
-  license: string;
-  experience: number;
-  rating: number;
-  hourlyRate: number;
-  bio: string;
-  availability: TimeSlot[];
-  verified: boolean;
+export interface Therapist {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  avatar?: string | null;
+  isActive: boolean;
+  therapistProfile: {
+    verified: boolean;
+    specialties: string[];
+    education?: string[];
+    certifications?: string[];
+    languages?: string[];
+    rating?: number;
+    totalReviews?: number;
+    hourlyRate?: number;
+    bio?: string;
+    experience?: number;
+    license?: string;
+    availability?: Array<{
+      day: string;
+      startTime: string;
+      endTime: string;
+      isAvailable: boolean;
+    }>;
+  };
 }
 
 export interface TimeSlot {
