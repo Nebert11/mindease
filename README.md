@@ -212,9 +212,9 @@ vercel --prod
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
 
-## License
+## Live link
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+https://mindease-two-iota.vercel.app/
 
 ## Support
 
