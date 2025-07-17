@@ -16,103 +16,288 @@ import {
 import Button from '../components/ui/Button';
 
 const Dashboard: React.FC = () => {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
   const [activeTab, setActiveTab] = useState('overview');
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
   const [recentActivity, setRecentActivity] = useState<any[]>([]);
   const [averageMood, setAverageMood] = useState<number | null>(null);
   const [streak, setStreak] = useState<number | null>(null);
   const [sessionsCount, setSessionsCount] = useState<number | null>(null);
-  const { token } = useAuth();
-  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+  const API_BASE_URL: string = (import.meta.env.VITE_API_URL as string) ?? '';
+
+  // Therapist dashboard state
+  const [therapistStats, setTherapistStats] = useState<{
+    todaysSessions: number;
+    activePatients: number;
+    averageRating: number | null;
+    schedule: any[];
+    recentMessages: any[];
+  }>({
+    todaysSessions: 0,
+    activePatients: 0,
+    averageRating: null,
+    schedule: [],
+    recentMessages: [],
+  });
+
+  // Admin dashboard state
+  const [adminStats, setAdminStats] = useState<{
+    totalUsers: number;
+    totalTherapists: number;
+    sessionsToday: number;
+    flaggedChats: number;
+    recentRegistrations: any[];
+    systemAlerts: any[];
+  }>({
+    totalUsers: 0,
+    totalTherapists: 0,
+    sessionsToday: 0,
+    flaggedChats: 0,
+    recentRegistrations: [],
+    systemAlerts: [],
+  });
 
   useEffect(() => {
     if (!token) return;
-    // Fetch upcoming appointments
-    fetch(`${API_BASE_URL}/api/bookings?upcoming=true`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) setUpcomingAppointments(data);
-      });
 
-    // Fetch recent journal entries
-    fetch(`${API_BASE_URL}/api/journal?limit=3`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data.entries)) {
-          setRecentActivity(prev => [
-            ...data.entries.map((e: any) => ({
-              type: 'journal',
-              title: e.title,
-              time: new Date(e.createdAt).toLocaleString()
-            })),
-            ...prev
-          ]);
-        }
-      });
+    let isMounted = true;
+    const fetchData = () => {
+      // Fetch upcoming appointments
+      fetch(`${API_BASE_URL}/api/bookings?upcoming=true`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (Array.isArray(data)) setUpcomingAppointments(data);
+          else setUpcomingAppointments([]);
+        })
+        .catch(() => { if (isMounted) setUpcomingAppointments([]); });
 
-    // Fetch recent mood entries
-    fetch(`${API_BASE_URL}/api/mood?limit=3`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data.entries)) {
-          setRecentActivity(prev => [
-            ...data.entries.map((e: any) => ({
-              type: 'mood',
-              title: 'Mood Check-in',
-              time: new Date(e.date || e.createdAt).toLocaleString()
-            })),
-            ...prev
-          ]);
-        }
-      });
+      // Fetch recent journal entries
+      fetch(`${API_BASE_URL}/api/journal?limit=3`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (Array.isArray(data.entries)) {
+            setRecentActivity(prev => [
+              ...data.entries.map((e: any) => ({
+                type: 'journal',
+                title: e.title,
+                time: new Date(e.createdAt).toLocaleString()
+              })),
+              ...prev.filter((a: any) => a.type !== 'journal')
+            ]);
+          }
+        })
+        .catch(() => {});
 
-    // Fetch mood insights (average mood, streak)
-    fetch(`${API_BASE_URL}/api/mood/insights/overview`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data && typeof data.averageMood === 'number') setAverageMood(data.averageMood);
-        // For streak, you may need to calculate based on moodTrend or add a backend field
-        if (data && Array.isArray(data.moodTrend)) {
-          // Simple streak: count consecutive days with entries from the end
-          let streakCount = 0;
-          let lastDate = null;
-          for (let i = data.moodTrend.length - 1; i >= 0; i--) {
-            const entryDate = new Date(data.moodTrend[i].date);
-            if (!lastDate) {
-              streakCount = 1;
-              lastDate = entryDate;
-            } else {
-              const diff = (lastDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24);
-              if (diff === 1) {
-                streakCount++;
+      // Fetch recent mood entries
+      fetch(`${API_BASE_URL}/api/mood?limit=3`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (Array.isArray(data.entries)) {
+            setRecentActivity(prev => [
+              ...data.entries.map((e: any) => ({
+                type: 'mood',
+                title: 'Mood Check-in',
+                time: new Date(e.date || e.createdAt).toLocaleString()
+              })),
+              ...prev.filter((a: any) => a.type !== 'mood')
+            ]);
+          }
+        })
+        .catch(() => {});
+
+      // Fetch mood insights (average mood, streak)
+      fetch(`${API_BASE_URL}/api/mood/insights/overview`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (data && typeof data.averageMood === 'number') setAverageMood(data.averageMood);
+          else setAverageMood(null);
+          // For streak, you may need to calculate based on moodTrend or add a backend field
+          if (data && Array.isArray(data.moodTrend)) {
+            let streakCount = 0;
+            let lastDate = null;
+            for (let i = data.moodTrend.length - 1; i >= 0; i--) {
+              const entryDate = new Date(data.moodTrend[i].date);
+              if (!lastDate) {
+                streakCount = 1;
                 lastDate = entryDate;
               } else {
-                break;
+                const diff = (lastDate.getTime() - entryDate.getTime()) / (1000 * 60 * 60 * 24);
+                if (diff === 1) {
+                  streakCount++;
+                  lastDate = entryDate;
+                } else {
+                  break;
+                }
               }
             }
+            setStreak(streakCount);
+          } else {
+            setStreak(null);
           }
-          setStreak(streakCount);
-        }
-      });
+        })
+        .catch(() => { if (isMounted) { setAverageMood(null); setStreak(null); } });
 
-    // Fetch user stats for sessions count
-    fetch(`${API_BASE_URL}/api/users/stats`, {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data && typeof data.totalSessions === 'number') setSessionsCount(data.totalSessions);
-      });
-  }, [token]);
+      // Fetch user stats for sessions count
+      fetch(`${API_BASE_URL}/api/users/stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (!isMounted) return;
+          if (data && typeof data.totalSessions === 'number') setSessionsCount(data.totalSessions);
+          else setSessionsCount(null);
+        })
+        .catch(() => { if (isMounted) setSessionsCount(null); });
+  }, [token, API_BASE_URL]);
+
+  useEffect(() => {
+    if (!token || user?.role !== 'therapist') return;
+    let isMounted = true;
+    const fetchTherapistData = async () => {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      const todayStr = `${yyyy}-${mm}-${dd}`;
+      try {
+        // 1. Fetch today's bookings (sessions & schedule)
+        const bookingsRes = await fetch(`${API_BASE_URL}/api/therapists/bookings/my?date=${todayStr}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const bookings = await bookingsRes.json();
+        const todaysSessions = Array.isArray(bookings) ? bookings.length : 0;
+        const schedule = Array.isArray(bookings) ? bookings : [];
+        // 2. Count unique active patients
+        const patientIds = Array.isArray(bookings) ? [...new Set(bookings.map((b: any) => b.patientId?._id || b.patientId))] : [];
+        const activePatients = patientIds.length;
+        // 3. Fetch average rating
+        const statsRes = await fetch(`${API_BASE_URL}/api/bookings/stats/overview`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const stats = await statsRes.json();
+        const averageRating = typeof stats.averageRating === 'number' ? stats.averageRating : null;
+        // 4. Fetch recent messages (conversations)
+        const messagesRes = await fetch(`${API_BASE_URL}/api/chat/conversations`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const conversations = await messagesRes.json();
+        const recentMessages = Array.isArray(conversations)
+          ? conversations.slice(0, 5).map((c: any) => ({
+              participant: c.participant,
+              lastMessage: c.lastMessage,
+              unreadCount: c.unreadCount
+            }))
+          : [];
+        if (isMounted) {
+          setTherapistStats({
+            todaysSessions,
+            activePatients,
+            averageRating,
+            schedule,
+            recentMessages,
+          });
+        }
+      } catch {
+        if (isMounted) {
+          setTherapistStats({
+            todaysSessions: 0,
+            activePatients: 0,
+            averageRating: null,
+            schedule: [],
+            recentMessages: [],
+          });
+        }
+      }
+    };
+    fetchTherapistData();
+    const interval = setInterval(fetchTherapistData, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [token, API_BASE_URL, user?.role]);
+
+  useEffect(() => {
+    if (!token || user?.role !== 'admin') return;
+    let isMounted = true;
+    const fetchAdminData = async () => {
+      try {
+        // 1. Fetch dashboard overview
+        const dashRes = await fetch(`${API_BASE_URL}/api/admin/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const dashData = await dashRes.json();
+        // 2. Fetch system health
+        const healthRes = await fetch(`${API_BASE_URL}/api/admin/system/health`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const healthData = await healthRes.json();
+        // Compose system alerts
+        const systemAlerts = [];
+        if (healthData.status !== 'healthy') {
+          systemAlerts.push({
+            type: 'system',
+            message: 'System unhealthy',
+            detail: healthData.error || ''
+          });
+        }
+        if (healthData.database !== 'connected') {
+          systemAlerts.push({
+            type: 'database',
+            message: 'Database disconnected',
+            detail: ''
+          });
+        }
+        if (healthData.recentErrors > 0) {
+          systemAlerts.push({
+            type: 'errors',
+            message: `${healthData.recentErrors} flagged errors in the last hour`,
+            detail: ''
+          });
+        }
+        // 3. Set state
+        if (isMounted) {
+          setAdminStats({
+            totalUsers: dashData.overview?.totalUsers || 0,
+            totalTherapists: dashData.overview?.totalTherapists || 0,
+            sessionsToday: dashData.overview?.completedSessions || 0,
+            flaggedChats: dashData.overview?.flaggedContent || 0,
+            recentRegistrations: dashData.recentRegistrations || [],
+            systemAlerts,
+          });
+        }
+      } catch {
+        if (isMounted) {
+          setAdminStats({
+            totalUsers: 0,
+            totalTherapists: 0,
+            sessionsToday: 0,
+            flaggedChats: 0,
+            recentRegistrations: [],
+            systemAlerts: [],
+          });
+        }
+      }
+    };
+    fetchAdminData();
+    const interval = setInterval(fetchAdminData, 30000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [token, API_BASE_URL, user?.role]);
 
   if (!user) {
     return (
@@ -263,58 +448,58 @@ const Dashboard: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Therapist Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">12</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{therapistStats.todaysSessions}</div>
             <div className="text-gray-600 dark:text-gray-300">Today's Sessions</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">45</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{therapistStats.activePatients}</div>
             <div className="text-gray-600 dark:text-gray-300">Active Patients</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">4.8</div>
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{therapistStats.averageRating !== null ? therapistStats.averageRating.toFixed(1) : '--'}</div>
             <div className="text-gray-600 dark:text-gray-300">Average Rating</div>
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-gray-800 dark:text-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Today's Schedule</h3>
           <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <div>
-                <p className="font-medium">John Doe</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Initial Consultation</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium">9:00 AM</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">50 min</p>
-              </div>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <div>
-                <p className="font-medium">Jane Smith</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Follow-up Session</p>
-              </div>
-              <div className="text-right">
-                <p className="text-sm font-medium">11:00 AM</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">50 min</p>
-              </div>
-            </div>
+            {therapistStats.schedule.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No sessions scheduled for today.</p>
+            ) : (
+              therapistStats.schedule.map((session, idx) => (
+                <div key={session._id || idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
+                  <div>
+                    <p className="font-medium">{session.patientId?.firstName || 'Unknown'}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{session.type || session.sessionType || 'Session'}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-medium">{session.sessionDate ? new Date(session.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{session.duration ? `${session.duration} min` : ''}</p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-gray-800 dark:text-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Recent Messages</h3>
           <div className="space-y-3">
-            <div className="p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <p className="font-medium text-gray-900 dark:text-gray-100">New message from John D.</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">2 hours ago</p>
-            </div>
-            <div className="p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <p className="font-medium text-gray-900 dark:text-gray-100">Session request from Sarah M.</p>
-              <p className="text-sm text-gray-600 dark:text-gray-300">4 hours ago</p>
-            </div>
+            {therapistStats.recentMessages.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No recent messages.</p>
+            ) : (
+              therapistStats.recentMessages.map((msg, idx) => (
+                <div key={idx} className="p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
+                  <p className="font-medium text-gray-900 dark:text-gray-100">
+                    {msg.lastMessage?.content ? `New message from ${msg.participant?.firstName || 'Unknown'}` : 'No message content'}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">
+                    {msg.lastMessage?.timestamp ? new Date(msg.lastMessage.timestamp).toLocaleString() : ''}
+                  </p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -327,56 +512,55 @@ const Dashboard: React.FC = () => {
         <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Admin Dashboard</h2>
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           <div className="text-center">
-            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">1,234</div>
+            <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{adminStats.totalUsers}</div>
             <div className="text-gray-600 dark:text-gray-300">Total Users</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-green-600 dark:text-green-400">89</div>
+            <div className="text-2xl font-bold text-green-600 dark:text-green-400">{adminStats.totalTherapists}</div>
             <div className="text-gray-600 dark:text-gray-300">Active Therapists</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">456</div>
+            <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{adminStats.sessionsToday}</div>
             <div className="text-gray-600 dark:text-gray-300">Sessions Today</div>
           </div>
           <div className="text-center">
-            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">12</div>
+            <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">{adminStats.flaggedChats}</div>
             <div className="text-gray-600 dark:text-gray-300">Flagged Chats</div>
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-gray-800 dark:text-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">Recent Registrations</h3>
           <div className="space-y-3">
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <div>
-                <p className="font-medium">John Doe</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Patient</p>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">2 hours ago</p>
-            </div>
-            <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
-              <div>
-                <p className="font-medium">Dr. Smith</p>
-                <p className="text-sm text-gray-600 dark:text-gray-300">Therapist (Pending)</p>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-300">5 hours ago</p>
-            </div>
+            {adminStats.recentRegistrations.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No recent registrations.</p>
+            ) : (
+              adminStats.recentRegistrations.map((reg, idx) => (
+                <div key={reg._id || idx} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg dark:bg-gray-900">
+                  <div>
+                    <p className="font-medium">{reg.firstName} {reg.lastName}</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300">{reg.role.charAt(0).toUpperCase() + reg.role.slice(1)}</p>
+                  </div>
+                  <p className="text-sm text-gray-600 dark:text-gray-300">{new Date(reg.createdAt).toLocaleString()}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
-
         <div className="bg-white p-6 rounded-lg shadow-sm dark:bg-gray-800 dark:text-gray-100">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 dark:text-gray-100">System Alerts</h3>
           <div className="space-y-3">
-            <div className="p-3 bg-yellow-50 rounded-lg border border-yellow-200 dark:bg-yellow-900 dark:border-yellow-700">
-              <p className="font-medium text-yellow-800 dark:text-yellow-200">Server Load High</p>
-              <p className="text-sm text-yellow-600 dark:text-yellow-300">Monitor system performance</p>
-            </div>
-            <div className="p-3 bg-red-50 rounded-lg border border-red-200 dark:bg-red-900 dark:border-red-700">
-              <p className="font-medium text-red-800 dark:text-red-200">Flagged Chat Reported</p>
-              <p className="text-sm text-red-600 dark:text-red-300">Review required</p>
-            </div>
+            {adminStats.systemAlerts.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400">No system alerts.</p>
+            ) : (
+              adminStats.systemAlerts.map((alert, idx) => (
+                <div key={idx} className={`p-3 rounded-lg border ${alert.type === 'system' ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900 dark:border-yellow-700' : alert.type === 'database' ? 'bg-red-50 border-red-200 dark:bg-red-900 dark:border-red-700' : 'bg-orange-50 border-orange-200 dark:bg-orange-900 dark:border-orange-700'}`}>
+                  <p className={`font-medium ${alert.type === 'system' ? 'text-yellow-800 dark:text-yellow-200' : alert.type === 'database' ? 'text-red-800 dark:text-red-200' : 'text-orange-800 dark:text-orange-200'}`}>{alert.message}</p>
+                  {alert.detail && <p className="text-sm text-gray-600 dark:text-gray-300">{alert.detail}</p>}
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
