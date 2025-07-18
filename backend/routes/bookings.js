@@ -62,6 +62,12 @@ router.post('/', auth, [
 
     await booking.save();
 
+    // Populate booking details for notification and response
+    await booking.populate([
+      { path: 'patientId', select: 'firstName lastName email' },
+      { path: 'therapistId', select: 'firstName lastName therapistProfile.specialties' }
+    ]);
+
     // Notify therapist in real time
     io.to(therapistId.toString()).emit('newBooking', {
       patientName: booking.patientId.firstName + ' ' + booking.patientId.lastName,
@@ -71,12 +77,6 @@ router.post('/', auth, [
       duration: booking.duration,
       sessionType: booking.sessionType
     });
-
-    // Populate booking details for response
-    await booking.populate([
-      { path: 'patientId', select: 'firstName lastName email' },
-      { path: 'therapistId', select: 'firstName lastName therapistProfile.specialties' }
-    ]);
 
     res.status(201).json({
       message: 'Booking created successfully',
