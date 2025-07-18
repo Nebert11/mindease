@@ -607,6 +607,44 @@ const Dashboard: React.FC = () => {
               <span>Date: {new Date(notif.date).toLocaleString()}</span>
               <span>Duration: {notif.duration} min</span>
               <span>Type: {notif.sessionType}</span>
+              <div className="flex gap-2 mt-2">
+                <button
+                  className="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded"
+                  onClick={async () => {
+                    await fetch(`${API_BASE_URL}/api/bookings/${notif.bookingId}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ status: 'confirmed' })
+                    });
+                    setBookingNotifications((prev) => prev.filter((_, i) => i !== idx));
+                  }}
+                >
+                  Accept
+                </button>
+                <button
+                  className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
+                  onClick={async () => {
+                    await fetch(`${API_BASE_URL}/api/bookings/${notif.bookingId}`, {
+                      method: 'PUT',
+                      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                      body: JSON.stringify({ status: 'rejected' })
+                    });
+                    setBookingNotifications((prev) => prev.filter((_, i) => i !== idx));
+                  }}
+                >
+                  Reject
+                </button>
+                <button
+                  className="bg-yellow-500 hover:bg-yellow-600 text-white px-3 py-1 rounded"
+                  onClick={() => {
+                    // Optionally open a modal to pick a new time, for now just remove notification
+                    setBookingNotifications((prev) => prev.filter((_, i) => i !== idx));
+                    // You can implement reschedule logic/modal here
+                  }}
+                >
+                  Reschedule
+                </button>
+              </div>
             </div>
           ))}
         </div>

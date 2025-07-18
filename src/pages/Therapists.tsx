@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Star, Filter, MapPin, Clock, DollarSign, Video, MessageCircle } from 'lucide-react';
 import { Therapist } from '../types';
 import Button from '../components/ui/Button';
+import io from 'socket.io-client';
+import { useAuth } from '../context/AuthContext';
 
 const Therapists: React.FC = () => {
   const [selectedSpecialty, setSelectedSpecialty] = useState('all');
@@ -16,6 +18,13 @@ const Therapists: React.FC = () => {
   const [bookingLoading, setBookingLoading] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState('');
   const [bookingError, setBookingError] = useState('');
+  const [showChatModal, setShowChatModal] = useState(false);
+  const [chatTherapist, setChatTherapist] = useState<Therapist | null>(null);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [chatInput, setChatInput] = useState('');
+  const { user, token } = useAuth();
+  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+  const socketRef = useRef<any>(null);
 
   useEffect(() => {
     const API_BASE_URL = import.meta.env.VITE_API_URL || '';
@@ -24,6 +33,38 @@ const Therapists: React.FC = () => {
       .then(data => setTherapists(data.therapists || []))
       .catch(() => setTherapists([]));
   }, []);
+
+  useEffect(() => {
+    if (showChatModal && user && chatTherapist) {
+      if (!socketRef.current) {
+        socketRef.current = io(API_BASE_URL, { transports: ['websocket'] });
+        socketRef.current.emit('join', user._id);
+      }
+      socketRef.current.on('newMessage', (msg: any) => {
+        setChatMessages((prev) => [...prev, msg]);
+      });
+      // Optionally fetch chat history here
+    }
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+    };
+  }, [showChatModal, user, chatTherapist, API_BASE_URL]);
+
+  const handleSendMessage = () => {
+    if (!chatInput.trim() || !user || !chatTherapist) return;
+    const msg = {
+      senderId: user._id,
+      recipientId: chatTherapist._id,
+      content: chatInput,
+      timestamp: new Date().toISOString(),
+    };
+    setChatMessages((prev) => [...prev, { ...msg, self: true }]);
+    socketRef.current.emit('privateMessage', msg);
+    setChatInput('');
+  };
 
   const specialties = ['all', 'Anxiety', 'Depression', 'Trauma', 'Couples Therapy', 'Family Therapy', 'Addiction Recovery', 'ADHD'];
   const locations = ['all', 'New York', 'California', 'Texas', 'Florida'];
@@ -122,6 +163,42 @@ const Therapists: React.FC = () => {
             >
               {bookingLoading ? 'Booking...' : 'Confirm Booking'}
             </button>
+          </div>
+        </div>
+      )}
+      {showChatModal && chatTherapist && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-lg relative">
+            <button
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              onClick={() => setShowChatModal(false)}
+            >
+              &times;
+            </button>
+            <h2 className="text-xl font-semibold mb-4">Chat with {chatTherapist.firstName} {chatTherapist.lastName}</h2>
+            <div className="h-64 overflow-y-auto mb-4 bg-gray-50 dark:bg-gray-900 rounded p-2">
+              {chatMessages.map((msg, idx) => (
+                <div key={idx} className={`mb-2 flex ${msg.self ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`px-3 py-2 rounded-lg ${msg.self ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-white'}`}>{msg.content}</div>
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="flex-1 border border-gray-300 rounded px-3 py-2 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                value={chatInput}
+                onChange={e => setChatInput(e.target.value)}
+                onKeyDown={e => { if (e.key === 'Enter') handleSendMessage(); }}
+                placeholder="Type your message..."
+              />
+              <button
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={handleSendMessage}
+              >
+                Send
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -300,7 +377,7 @@ const Therapists: React.FC = () => {
                     </div>
                     
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex items-center space-x-1">
+                      <Button variant="outline" size="sm" className="flex items-center space-x-1" onClick={() => { setChatTherapist(therapist); setShowChatModal(true); }}>
                         <MessageCircle className="h-4 w-4" />
                         <span>Message</span>
                       </Button>
