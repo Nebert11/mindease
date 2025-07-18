@@ -1,5 +1,6 @@
 import React from 'react';
 import { Heart, Shield, Users, Award, Target, Globe } from 'lucide-react';
+import nebertImg from '../assets/nebert.jpg';
 
 const About: React.FC = () => {
   const values = [
@@ -45,7 +46,7 @@ const About: React.FC = () => {
     {
       name: 'Nebert Ngari',
       role: 'Head of Engineering',
-      image: '/src/assets/nebert.jpg',
+      image: nebertImg,
       bio: 'Former tech lead at major healthcare platforms, passionate about secure, scalable mental health solutions.'
     },
     {
