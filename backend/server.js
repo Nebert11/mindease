@@ -59,7 +59,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 const allowedOrigins = [
-  'https://mindease-two-iota.vercel.app',
+  'https://mindease-two-iota.vercel.app', // no trailing slash
   'http://localhost:3000'
 ];
 
