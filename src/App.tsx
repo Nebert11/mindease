@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { NotificationProvider } from './context/NotificationContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import Home from './pages/Home';
@@ -22,29 +23,31 @@ function App() {
   return (
     <ThemeProvider>
       <AuthProvider>
-        <Router>
-          <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
-            <Header />
-            <main className="flex-1">
-              <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/chat" element={<Chat />} />
-                <Route path="/therapists" element={<Therapists />} />
-                <Route path="/journal" element={<Journal />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/blog" element={<Blog />} />
-                <Route path="/contact" element={<Contact />} />
-                <Route path="/book" element={<Book />} />
-                <Route path="/mood" element={<Mood />} />
-                <Route path="/profile" element={<Profile />} />
-              </Routes>
-            </main>
-            <Footer />
-          </div>
-        </Router>
+        <NotificationProvider>
+          <Router>
+            <div className="min-h-screen bg-gray-50 flex flex-col dark:bg-gray-900">
+              <Header />
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<Home />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/register" element={<Register />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/chat" element={<Chat />} />
+                  <Route path="/therapists" element={<Therapists />} />
+                  <Route path="/journal" element={<Journal />} />
+                  <Route path="/about" element={<About />} />
+                  <Route path="/blog" element={<Blog />} />
+                  <Route path="/contact" element={<Contact />} />
+                  <Route path="/book" element={<Book />} />
+                  <Route path="/mood" element={<Mood />} />
+                  <Route path="/profile" element={<Profile />} />
+                </Routes>
+              </main>
+              <Footer />
+            </div>
+          </Router>
+        </NotificationProvider>
       </AuthProvider>
     </ThemeProvider>
   );
