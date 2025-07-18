@@ -14,7 +14,7 @@ const authRoutes = require('./routes/auth');
 const userRoutes = require('./routes/users');
 const therapistRoutes = require('./routes/therapists');
 const chatRoutes = require('./routes/chat');
-const bookingRoutes = require('./routes/bookings')(io);
+// const bookingRoutes = require('./routes/bookings')(io); // moved below
 const journalRoutes = require('./routes/journal');
 const moodRoutes = require('./routes/mood');
 const adminRoutes = require('./routes/admin');
@@ -33,10 +33,13 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 // Socket.IO setup
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
+    origin: 'https://mindease-two-iota.vercel.app',
     methods: ["GET", "POST"]
   }
 });
+
+// Now that io is defined, import bookingRoutes
+const bookingRoutes = require('./routes/bookings')(io);
 
 // Database connection
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/mindease', {
