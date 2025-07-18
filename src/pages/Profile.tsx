@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
+import { User } from '../types';
 
 const DEFAULT_AVATAR = 'https://randomuser.me/api/portraits/men/32.jpg';
 
@@ -8,6 +9,16 @@ const Profile: React.FC = () => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+
+  // Therapist profile state
+  const [therapistProfile, setTherapistProfile] = useState<User['therapistProfile']>(user?.therapistProfile || {
+    specialties: [],
+    education: [],
+    certifications: [],
+    languages: [],
+    bio: ''
+  });
+  const [saving, setSaving] = useState(false);
 
   // Mock user data (replace with real user data from context or props)
   const profile = {
@@ -74,6 +85,34 @@ const Profile: React.FC = () => {
       alert('Failed to revert avatar');
     } finally {
       setUploading(false);
+    }
+  };
+
+  // Save therapist profile
+  const handleTherapistProfileSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!token) return;
+    setSaving(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/users/profile`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ therapistProfile })
+      });
+      const data = await res.json();
+      if (res.ok && data.user) {
+        updateUser({ therapistProfile: data.user.therapistProfile });
+        alert('Profile updated successfully!');
+      } else {
+        alert(data.message || 'Failed to update profile');
+      }
+    } catch (err) {
+      alert('Failed to update profile');
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -170,6 +209,69 @@ const Profile: React.FC = () => {
             </div>
           </form>
         </div>
+
+        {/* Therapist Profile Section */}
+        {user?.role === 'therapist' && (
+          <div className="bg-white rounded-xl shadow p-8 mt-8 dark:bg-gray-800 dark:text-white">
+            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Therapist Profile</h3>
+            <form className="grid grid-cols-1 md:grid-cols-2 gap-6" onSubmit={handleTherapistProfileSave}>
+              <div className="md:col-span-2">
+                <label className="block text-gray-700 mb-1 font-medium dark:text-white">Bio</label>
+                <textarea
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                  rows={3}
+                  value={therapistProfile?.bio || ''}
+                  onChange={e => setTherapistProfile(tp => ({ ...tp, bio: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1 font-medium dark:text-white">Specialties (comma separated)</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                  value={therapistProfile?.specialties?.join(', ') || ''}
+                  onChange={e => setTherapistProfile(tp => ({ ...tp, specialties: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1 font-medium dark:text-white">Education (comma separated)</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                  value={therapistProfile?.education?.join(', ') || ''}
+                  onChange={e => setTherapistProfile(tp => ({ ...tp, education: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1 font-medium dark:text-white">Certifications (comma separated)</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                  value={therapistProfile?.certifications?.join(', ') || ''}
+                  onChange={e => setTherapistProfile(tp => ({ ...tp, certifications: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                />
+              </div>
+              <div>
+                <label className="block text-gray-700 mb-1 font-medium dark:text-white">Languages (comma separated)</label>
+                <input
+                  type="text"
+                  className="w-full border border-gray-300 rounded-md px-4 py-2 bg-gray-100 text-gray-700 focus:outline-none dark:bg-gray-900 dark:border-gray-600 dark:text-white"
+                  value={therapistProfile?.languages?.join(', ') || ''}
+                  onChange={e => setTherapistProfile(tp => ({ ...tp, languages: e.target.value.split(',').map(s => s.trim()).filter(Boolean) }))}
+                />
+              </div>
+              <div className="md:col-span-2 flex justify-end">
+                <button
+                  type="submit"
+                  className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition-colors dark:bg-blue-500 dark:hover:bg-blue-600"
+                  disabled={saving}
+                >
+                  {saving ? 'Saving...' : 'Save Profile'}
+                </button>
+              </div>
+            </form>
+          </div>
+        )}
       </div>
     </div>
   );

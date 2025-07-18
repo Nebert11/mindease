@@ -257,6 +257,42 @@ const Therapists: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Education */}
+                  {therapist.therapistProfile?.education && therapist.therapistProfile.education.length > 0 && (
+                    <div className="mb-2">
+                      <h4 className="text-sm font-medium text-gray-900 mb-1">Education</h4>
+                      <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-200">
+                        {therapist.therapistProfile.education.map((edu, idx) => (
+                          <li key={idx}>{edu}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Certifications */}
+                  {therapist.therapistProfile?.certifications && therapist.therapistProfile.certifications.length > 0 && (
+                    <div className="mb-2">
+                      <h4 className="text-sm font-medium text-gray-900 mb-1">Certifications</h4>
+                      <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-200">
+                        {therapist.therapistProfile.certifications.map((cert, idx) => (
+                          <li key={idx}>{cert}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Languages */}
+                  {therapist.therapistProfile?.languages && therapist.therapistProfile.languages.length > 0 && (
+                    <div className="mb-2">
+                      <h4 className="text-sm font-medium text-gray-900 mb-1">Languages</h4>
+                      <div className="flex flex-wrap gap-2">
+                        {therapist.therapistProfile.languages.map((lang, idx) => (
+                          <span key={idx} className="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full dark:bg-gray-700 dark:text-gray-100">{lang}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-2 text-sm text-gray-600">
                       <MapPin className="h-4 w-4" />

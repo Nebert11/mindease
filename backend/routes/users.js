@@ -64,7 +64,7 @@ router.put('/profile', auth, [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { firstName, lastName, email, preferences } = req.body;
+    const { firstName, lastName, email, preferences, therapistProfile } = req.body;
     const user = await User.findById(req.user._id);
 
     if (!user) {
@@ -85,6 +85,14 @@ router.put('/profile', auth, [
     if (email) user.email = email;
     if (preferences) user.preferences = { ...user.preferences, ...preferences };
 
+    // Therapist profile update
+    if (therapistProfile && user.role === 'therapist') {
+      user.therapistProfile = {
+        ...user.therapistProfile,
+        ...therapistProfile
+      };
+    }
+
     await user.save();
 
     res.json({
@@ -96,7 +104,8 @@ router.put('/profile', auth, [
         email: user.email,
         role: user.role,
         avatar: user.avatar,
-        preferences: user.preferences
+        preferences: user.preferences,
+        therapistProfile: user.therapistProfile
       }
     });
   } catch (error) {

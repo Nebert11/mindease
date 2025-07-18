@@ -9,6 +9,25 @@ export interface User {
   createdAt: Date;
   lastLogin?: Date;
   isActive: boolean;
+  therapistProfile?: {
+    verified?: boolean;
+    specialties?: string[];
+    education?: string[];
+    certifications?: string[];
+    languages?: string[];
+    rating?: number;
+    totalReviews?: number;
+    hourlyRate?: number;
+    bio?: string;
+    experience?: number;
+    license?: string;
+    availability?: Array<{
+      day: string;
+      startTime: string;
+      endTime: string;
+      isAvailable: boolean;
+    }>;
+  };
 }
 
 export interface Therapist {
