@@ -7,10 +7,16 @@ const path = require('path');
 const Booking = require('../models/Booking');
 const JournalEntry = require('../models/JournalEntry');
 const MoodEntry = require('../models/MoodEntry');
+const fs = require('fs');
 
 const router = express.Router();
 
 // Configure multer for file uploads
+const avatarsDir = 'uploads/avatars';
+if (!fs.existsSync(avatarsDir)) {
+  fs.mkdirSync(avatarsDir, { recursive: true });
+}
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, 'uploads/avatars/');
