@@ -43,9 +43,9 @@ const About: React.FC = () => {
       bio: 'Licensed psychologist with 15 years of experience in digital mental health innovation.'
     },
     {
-      name: 'Michael Chen',
+      name: 'Nebert Ngari',
       role: 'Head of Engineering',
-      image: 'https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&w=300&h=300&fit=crop',
+      image: '/src/assets/nebert.jpg',
       bio: 'Former tech lead at major healthcare platforms, passionate about secure, scalable mental health solutions.'
     },
     {
