@@ -62,7 +62,7 @@ app.use('/api/', limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: 'https://mindease-two-iota.vercel.app',
+  origin: true, // Reflects the request origin
   credentials: true
 }));
 
