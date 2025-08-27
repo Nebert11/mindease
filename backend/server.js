@@ -26,6 +26,9 @@ const auth = require('./middleware/auth');
 const app = express();
 const server = createServer(app);
 
+// Trust proxy headers (needed on Render/other proxies for correct client IPs)
+app.set('trust proxy', 1);
+
 // Serve static files for uploads (avatars, etc.)
 const path = require('path');
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -52,19 +55,38 @@ app.use(helmet());
 app.use(compression());
 app.use(morgan('combined'));
 
-// Rate limiting
+// CORS configuration (must be BEFORE rate limiting and routes)
+const allowedOrigins = [
+  'http://localhost:5173',
+  'http://127.0.0.1:5173',
+  'https://mindease-two-iota.vercel.app'
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true); // allow non-browser tools and same-origin
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
+// Rate limiting (AFTER CORS so even 429 has CORS headers)
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again later.'
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: 'Too many requests from this IP, please try again later.',
+  // Do not rate-limit CORS preflight requests
+  skip: (req) => req.method === 'OPTIONS'
 });
 app.use('/api/', limiter);
-
-// CORS configuration
-app.use(cors({
-  origin: true, // Reflects the request origin
-  credentials: true
-}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
