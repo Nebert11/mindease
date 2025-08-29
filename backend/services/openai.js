@@ -49,7 +49,12 @@ class AIService {
       const status = error?.status || error?.response?.status;
       const providerMsg = error?.response?.data?.error?.message || error?.message || 'Unknown error';
       console.error('OpenAI API error:', { status, providerMsg });
-      throw new Error(`AI provider error${status ? ` (${status})` : ''}: ${providerMsg}`);
+      const err = new Error(`AI provider error${status ? ` (${status})` : ''}: ${providerMsg}`);
+      if (status) {
+        // Preserve provider status for the route handler
+        err.status = status;
+      }
+      throw err;
     }
   }
 

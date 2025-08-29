@@ -79,10 +79,10 @@ router.post('/ai', auth, [
       }
     });
   } catch (error) {
-    console.error('AI Chat error:', error?.message || error);
+    const status = error?.status || 503;
     const detail = typeof error?.message === 'string' ? error.message : 'Unknown error';
-    // Surface clearer cause (provider/network/auth) to client for debugging
-    res.status(503).json({ message: 'AI service unavailable', detail });
+    console.error('AI Chat error:', detail);
+    res.status(status).json({ message: status === 429 ? 'AI rate limit or quota exceeded' : 'AI service unavailable', detail });
   }
 });
 
