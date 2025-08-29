@@ -99,7 +99,7 @@ const Blog: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">Mental Health Resources</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-white">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
             Expert insights, practical tips, and evidence-based strategies for your mental wellness journey.
           </p>
         </div>
@@ -141,15 +141,15 @@ const Blog: React.FC = () => {
                 />
               </div>
               <div className="md:w-1/2 p-8">
-                <div className="flex items-center text-sm text-gray-600 mb-2">
+                <div className="flex items-center text-sm text-gray-600 mb-2 dark:text-gray-300">
                   <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
                     Featured
                   </span>
                   <span className="ml-2">{featuredPost.category}</span>
                 </div>
-                <h2 className="text-2xl font-bold text-gray-900 mb-4">{featuredPost.title}</h2>
-                <p className="text-gray-600 mb-4">{featuredPost.excerpt}</p>
-                <div className="flex items-center text-sm text-gray-500 mb-4">
+                <h2 className="text-2xl font-bold text-gray-900 mb-4 dark:text-white">{featuredPost.title}</h2>
+                <p className="text-gray-600 mb-4 dark:text-gray-300">{featuredPost.excerpt}</p>
+                <div className="flex items-center text-sm text-gray-500 mb-4 dark:text-gray-400">
                   <User className="h-4 w-4 mr-1" />
                   <span className="mr-4">{featuredPost.author}</span>
                   <Calendar className="h-4 w-4 mr-1" />
@@ -174,14 +174,14 @@ const Blog: React.FC = () => {
                 className="w-full h-48 object-cover"
               />
               <div className="p-6">
-                <div className="flex items-center text-sm text-gray-600 mb-2">
+                <div className="flex items-center text-sm text-gray-600 mb-2 dark:text-gray-300">
                   <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs">
                     {post.category}
                   </span>
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{post.title}</h3>
-                <p className="text-gray-600 mb-4">{post.excerpt}</p>
-                <div className="flex items-center text-sm text-gray-500 mb-4">
+                <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">{post.title}</h3>
+                <p className="text-gray-600 mb-4 dark:text-gray-300">{post.excerpt}</p>
+                <div className="flex items-center text-sm text-gray-500 mb-4 dark:text-gray-400">
                   <User className="h-4 w-4 mr-1" />
                   <span className="mr-4">{post.author}</span>
                   <Calendar className="h-4 w-4 mr-1" />

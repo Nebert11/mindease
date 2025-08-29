@@ -124,7 +124,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const logout = () => {
     setUser(null);
+    setToken(null);
     localStorage.removeItem('mindease_user');
+    localStorage.removeItem('mindease_token');
   };
 
   const updateUser = (updates: Partial<User>) => {

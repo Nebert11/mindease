@@ -376,7 +376,7 @@ const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Quick Actions */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4 dark:text-gray-100">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {quickActions.map((action, index) => (
             <Link key={index} to={action.href} className="group">
@@ -384,7 +384,7 @@ const Dashboard: React.FC = () => {
                 <div className={`${action.color} w-12 h-12 rounded-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
                   <action.icon className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-medium text-gray-900 mb-2">{action.title}</h3>
+                <h3 className="font-medium text-gray-900 mb-2 dark:text-white">{action.title}</h3>
                 <p className="text-sm text-gray-600 dark:text-gray-300">{action.description}</p>
               </div>
             </Link>
@@ -503,7 +503,7 @@ const Dashboard: React.FC = () => {
                     <p className="text-sm text-gray-600 dark:text-gray-300">{session.type || session.sessionType || 'Session'}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-medium">{session.sessionDate ? new Date(session.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'}</p>
+                    <p className="text-sm font-medium dark:text-gray-100">{session.sessionDate ? new Date(session.sessionDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '--'}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-300">{session.duration ? `${session.duration} min` : ''}</p>
                   </div>
                 </div>

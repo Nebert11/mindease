@@ -130,20 +130,20 @@ const Therapists: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-lg relative">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
               onClick={() => setShowBookingModal(false)}
             >
               &times;
             </button>
-            <h2 className="text-xl font-semibold mb-4">Book Session with {selectedTherapist.firstName} {selectedTherapist.lastName}</h2>
-            <label className="block mb-2 text-sm font-medium">Select Date & Time</label>
+            <h2 className="text-xl font-semibold mb-4 dark:text-gray-100">Book Session with {selectedTherapist.firstName} {selectedTherapist.lastName}</h2>
+            <label className="block mb-2 text-sm font-medium dark:text-gray-200">Select Date & Time</label>
             <input
               type="datetime-local"
               value={bookingDate}
               onChange={e => setBookingDate(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md mb-2 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-600 dark:text-gray-100"
             />
-            <label className="block mb-2 text-sm font-medium">Session Duration (minutes)</label>
+            <label className="block mb-2 text-sm font-medium dark:text-gray-200">Session Duration (minutes)</label>
             <select
               value={bookingDuration}
               onChange={e => setBookingDuration(Number(e.target.value))}
@@ -170,12 +170,12 @@ const Therapists: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
           <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md shadow-lg relative">
             <button
-              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+              className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-200"
               onClick={() => setShowChatModal(false)}
             >
               &times;
             </button>
-            <h2 className="text-xl font-semibold mb-4">Chat with {chatTherapist.firstName} {chatTherapist.lastName}</h2>
+            <h2 className="text-xl font-semibold mb-4 dark:text-gray-100">Chat with {chatTherapist.firstName} {chatTherapist.lastName}</h2>
             <div className="h-64 overflow-y-auto mb-4 bg-gray-50 dark:bg-gray-900 rounded p-2">
               {chatMessages.map((msg, idx) => (
                 <div key={idx} className={`mb-2 flex ${msg.self ? 'justify-end' : 'justify-start'}`}>
@@ -206,7 +206,7 @@ const Therapists: React.FC = () => {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4 dark:text-white">Find a Therapist</h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-white">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
             Browse our network of licensed therapists and find the right fit for you.
           </p>
         </div>
@@ -214,13 +214,13 @@ const Therapists: React.FC = () => {
         {/* Filters */}
         <div className="bg-white rounded-lg shadow-sm p-6 mb-8 dark:bg-gray-800 dark:text-gray-100">
           <div className="flex items-center space-x-2 mb-4">
-            <Filter className="h-5 w-5 text-gray-600" />
-            <h2 className="text-lg font-semibold text-gray-900">Filters</h2>
+            <Filter className="h-5 w-5 text-gray-600 dark:text-gray-300" />
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Filters</h2>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Specialty</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-200">Specialty</label>
               <select
                 value={selectedSpecialty}
                 onChange={(e) => setSelectedSpecialty(e.target.value)}
@@ -235,7 +235,7 @@ const Therapists: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-200">Location</label>
               <select
                 value={selectedLocation}
                 onChange={(e) => setSelectedLocation(e.target.value)}
@@ -250,7 +250,7 @@ const Therapists: React.FC = () => {
             </div>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Price Range</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2 dark:text-gray-200">Price Range</label>
               <select
                 value={priceRange}
                 onChange={(e) => setPriceRange(e.target.value)}
@@ -290,7 +290,7 @@ const Therapists: React.FC = () => {
                   />
                   <div className="flex-1">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-xl font-semibold text-gray-900">
+                      <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
                         {therapist.firstName} {therapist.lastName}
                       </h3>
                       {therapist.therapistProfile?.verified && (
@@ -300,7 +300,7 @@ const Therapists: React.FC = () => {
                       )}
                     </div>
                     
-                    <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600">
+                    <div className="flex items-center space-x-4 mt-1 text-sm text-gray-600 dark:text-gray-300">
                       <div className="flex items-center">
                         <Star className="h-4 w-4 text-yellow-400 mr-1" />
                         <span>{therapist.therapistProfile?.rating ?? 0}</span>
@@ -318,10 +318,10 @@ const Therapists: React.FC = () => {
                 </div>
 
                 <div className="mt-4">
-                  <p className="text-gray-600 text-sm mb-3">{therapist.therapistProfile?.bio || ''}</p>
+                  <p className="text-gray-600 text-sm mb-3 dark:text-gray-300">{therapist.therapistProfile?.bio || ''}</p>
                   
                   <div className="mb-4">
-                    <h4 className="text-sm font-medium text-gray-900 mb-2">Specialties</h4>
+                    <h4 className="text-sm font-medium text-gray-900 mb-2 dark:text-gray-100">Specialties</h4>
                     <div className="flex flex-wrap gap-2">
                       {(therapist.therapistProfile?.specialties || []).map((specialty, index) => (
                         <span
@@ -337,7 +337,7 @@ const Therapists: React.FC = () => {
                   {/* Education */}
                   {therapist.therapistProfile?.education && therapist.therapistProfile.education.length > 0 && (
                     <div className="mb-2">
-                      <h4 className="text-sm font-medium text-gray-900 mb-1">Education</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-1 dark:text-gray-100">Education</h4>
                       <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-200">
                         {therapist.therapistProfile.education.map((edu, idx) => (
                           <li key={idx}>{edu}</li>
@@ -349,7 +349,7 @@ const Therapists: React.FC = () => {
                   {/* Certifications */}
                   {therapist.therapistProfile?.certifications && therapist.therapistProfile.certifications.length > 0 && (
                     <div className="mb-2">
-                      <h4 className="text-sm font-medium text-gray-900 mb-1">Certifications</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-1 dark:text-gray-100">Certifications</h4>
                       <ul className="list-disc list-inside text-xs text-gray-700 dark:text-gray-200">
                         {therapist.therapistProfile.certifications.map((cert, idx) => (
                           <li key={idx}>{cert}</li>
@@ -361,7 +361,7 @@ const Therapists: React.FC = () => {
                   {/* Languages */}
                   {therapist.therapistProfile?.languages && therapist.therapistProfile.languages.length > 0 && (
                     <div className="mb-2">
-                      <h4 className="text-sm font-medium text-gray-900 mb-1">Languages</h4>
+                      <h4 className="text-sm font-medium text-gray-900 mb-1 dark:text-gray-100">Languages</h4>
                       <div className="flex flex-wrap gap-2">
                         {therapist.therapistProfile.languages.map((lang, idx) => (
                           <span key={idx} className="bg-gray-200 text-gray-800 text-xs px-2 py-1 rounded-full dark:bg-gray-700 dark:text-gray-100">{lang}</span>
@@ -371,7 +371,7 @@ const Therapists: React.FC = () => {
                   )}
 
                   <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-300">
                       <MapPin className="h-4 w-4" />
                       <span>License: {therapist.therapistProfile?.license || 'N/A'}</span>
                     </div>

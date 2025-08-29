@@ -124,8 +124,8 @@ const Contact: React.FC = () => {
             {isSubmitted ? (
               <div className="text-center py-8">
                 <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">Message Sent!</h3>
-                <p className="text-gray-600">Thank you for reaching out. We'll get back to you soon.</p>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2 dark:text-white">Message Sent!</h3>
+                <p className="text-gray-600 dark:text-gray-300">Thank you for reaching out. We'll get back to you soon.</p>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-6">
@@ -223,25 +223,25 @@ const Contact: React.FC = () => {
 
           {/* Contact Information */}
           <div className="space-y-8">
-            <div className="bg-white rounded-lg shadow-sm p-8">
+            <div className="bg-white rounded-lg shadow-sm p-8 dark:bg-gray-800 dark:text-white">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">Contact Information</h2>
               <div className="space-y-6">
                 {contactInfo.map((info, index) => (
                   <div key={index} className="flex items-start space-x-4">
-                    <div className="bg-blue-100 p-3 rounded-full">
-                      <info.icon className="h-6 w-6 text-blue-600" />
+                    <div className="bg-blue-100 p-3 rounded-full dark:bg-blue-900">
+                      <info.icon className="h-6 w-6 text-blue-600 dark:text-blue-300" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900 dark:text-white">{info.title}</h3>
                       <p className="text-gray-700 dark:text-gray-300">{info.content}</p>
-                      <p className="text-sm text-gray-500">{info.subtitle}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{info.subtitle}</p>
                     </div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="bg-white rounded-lg shadow-sm p-8">
+            <div className="bg-white rounded-lg shadow-sm p-8 dark:bg-gray-800 dark:text-white">
               <h2 className="text-2xl font-bold text-gray-900 mb-6 dark:text-white">Frequently Asked Questions</h2>
               <div className="space-y-6">
                 {faqs.map((faq, index) => (
@@ -256,7 +256,7 @@ const Contact: React.FC = () => {
         </div>
 
         {/* Office Location */}
-        <div className="bg-white rounded-lg shadow-sm p-8 mt-12">
+        <div className="bg-white rounded-lg shadow-sm p-8 mt-12 dark:bg-gray-800 dark:text-white">
           <div className="text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-4 dark:text-white">Our Mission</h2>
             <p className="text-gray-600 max-w-2xl mx-auto dark:text-gray-300">
