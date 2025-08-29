@@ -11,18 +11,12 @@ interface Message {
 }
 
 const Chat: React.FC = () => {
-  const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      content: "Hello! I'm MindEase AI, your mental health support assistant. I'm here to listen, provide coping strategies, and help you navigate your emotional well-being. How are you feeling today?",
-      sender: 'ai',
-      timestamp: new Date()
-    }
-  ]);
+  const { user, token } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const API_BASE_URL: string = (import.meta.env.VITE_API_URL as string) ?? '';
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -32,50 +26,30 @@ const Chat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const generateAIResponse = (userMessage: string): string => {
-    const responses = {
-      greeting: [
-        "Hello! It's great to connect with you. How can I support you today?",
-        "Hi there! I'm here to listen and help. What's on your mind?",
-        "Welcome! I'm glad you reached out. How are you feeling right now?"
-      ],
-      anxiety: [
-        "I understand you're feeling anxious. Let's try a grounding technique: Can you name 5 things you can see around you right now?",
-        "Anxiety can be overwhelming. Try taking slow, deep breaths. Breathe in for 4 counts, hold for 4, and out for 4. Would you like to try this together?",
-        "It's completely normal to feel anxious. Remember, this feeling will pass. What usually helps you feel more calm?"
-      ],
-      depression: [
-        "I hear that you're going through a difficult time. Your feelings are valid, and it's brave of you to reach out. What's one small thing that brought you comfort today?",
-        "Depression can make everything feel heavy. Remember that seeking help is a sign of strength. Have you been able to maintain any daily routines?",
-        "I'm here with you. Sometimes just talking can help lighten the burden. What's been weighing on your mind most lately?"
-      ],
-      stress: [
-        "Stress can feel overwhelming. Let's work on breaking it down into manageable parts. What's the main source of stress you're dealing with?",
-        "When we're stressed, our bodies need extra care. Have you been able to get enough sleep and nutrition lately?",
-        "Stress is your body's way of responding to challenges. What are some healthy ways you've coped with stress in the past?"
-      ],
-      default: [
-        "Thank you for sharing that with me. Can you tell me more about how you're feeling?",
-        "I'm here to listen and support you. What would be most helpful for you right now?",
-        "That sounds challenging. How has this been affecting your daily life?",
-        "I appreciate you opening up. What kind of support would feel most beneficial to you?"
-      ]
+  // Load AI chat history on mount
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/chat/ai/history?limit=50`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const hist: Message[] = data.map((m: any) => ({
+            id: m.id,
+            content: m.content,
+            sender: m.sender,
+            timestamp: new Date(m.timestamp)
+          }));
+          setMessages(hist);
+        }
+      } catch {
+        // ignore
+      }
     };
-
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-      return responses.greeting[Math.floor(Math.random() * responses.greeting.length)];
-    } else if (lowerMessage.includes('anxious') || lowerMessage.includes('worry') || lowerMessage.includes('nervous')) {
-      return responses.anxiety[Math.floor(Math.random() * responses.anxiety.length)];
-    } else if (lowerMessage.includes('depressed') || lowerMessage.includes('sad') || lowerMessage.includes('down')) {
-      return responses.depression[Math.floor(Math.random() * responses.depression.length)];
-    } else if (lowerMessage.includes('stressed') || lowerMessage.includes('overwhelmed') || lowerMessage.includes('pressure')) {
-      return responses.stress[Math.floor(Math.random() * responses.stress.length)];
-    } else {
-      return responses.default[Math.floor(Math.random() * responses.default.length)];
-    }
-  };
+    loadHistory();
+  }, [token, API_BASE_URL]);
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,28 +66,47 @@ const Chat: React.FC = () => {
     setInputMessage('');
     setIsTyping(true);
 
-    // Simulate AI response delay
-    setTimeout(() => {
-      const aiResponse: Message = {
-        id: (Date.now() + 1).toString(),
-        content: generateAIResponse(inputMessage),
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/chat/ai`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ message: userMessage.content })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const aiMsg: Message = {
+          id: data.aiMessage.id,
+          content: data.aiMessage.content,
+          sender: 'ai',
+          timestamp: new Date(data.aiMessage.timestamp)
+        };
+        setMessages(prev => [...prev, aiMsg]);
+      } else {
+        // Fallback error message
+        setMessages(prev => [...prev, {
+          id: (Date.now() + 2).toString(),
+          content: 'Sorry, I had trouble responding. Please try again.',
+          sender: 'ai',
+          timestamp: new Date()
+        }]);
+      }
+    } catch {
+      setMessages(prev => [...prev, {
+        id: (Date.now() + 3).toString(),
+        content: 'Network error. Please check your connection and try again.',
         sender: 'ai',
         timestamp: new Date()
-      };
-      setMessages(prev => [...prev, aiResponse]);
+      }]);
+    } finally {
       setIsTyping(false);
-    }, 1000 + Math.random() * 2000);
+    }
   };
 
   const clearChat = () => {
-    setMessages([
-      {
-        id: '1',
-        content: "Hello! I'm MindEase AI, your mental health support assistant. I'm here to listen, provide coping strategies, and help you navigate your emotional well-being. How are you feeling today?",
-        sender: 'ai',
-        timestamp: new Date()
-      }
-    ]);
+    setMessages([]);
   };
 
   const exportChat = () => {
@@ -132,10 +125,10 @@ const Chat: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center dark:bg-gray-900">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
-          <p className="text-gray-600">Please log in to access the AI chat.</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4 dark:text-gray-100">Access Denied</h1>
+          <p className="text-gray-600 dark:text-gray-300">Please log in to access the AI chat.</p>
         </div>
       </div>
     );
