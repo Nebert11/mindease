@@ -21,15 +21,16 @@ router.post('/ai', auth, [
     const { message, sessionId } = req.body;
     const userId = req.user._id;
 
-    // Save user message
+    // Save user message (store as self-chat thread)
+    const sessionTag = sessionId || `session_${Date.now()}`;
     const userMessage = new Message({
       senderId: userId,
-      receiverId: null, // AI messages don't have a specific receiver
+      receiverId: userId,
       content: message,
       messageType: 'text',
       isAIResponse: false,
       aiMetadata: {
-        sessionId: sessionId || `session_${Date.now()}`
+        sessionId: sessionTag
       }
     });
 
@@ -46,16 +47,16 @@ router.post('/ai', auth, [
     // Generate AI response
     const aiResponse = await aiService.generateChatResponse(message, context);
 
-    // Save AI response
+    // Save AI response (store under same self-chat thread; differentiate via isAIResponse)
     const aiMessage = new Message({
-      senderId: null, // AI doesn't have a user ID
+      senderId: userId,
       receiverId: userId,
       content: aiResponse.content,
       messageType: 'text',
       isAIResponse: true,
       aiMetadata: {
         confidence: aiResponse.confidence,
-        sessionId: sessionId || `session_${Date.now()}`,
+        sessionId: sessionTag,
         intent: 'support'
       }
     });
