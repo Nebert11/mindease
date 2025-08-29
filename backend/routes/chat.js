@@ -78,8 +78,10 @@ router.post('/ai', auth, [
       }
     });
   } catch (error) {
-    console.error('AI Chat error:', error);
-    res.status(500).json({ message: 'Failed to process AI chat', error: error.message });
+    console.error('AI Chat error:', error?.message || error);
+    const detail = typeof error?.message === 'string' ? error.message : 'Unknown error';
+    // Surface clearer cause (provider/network/auth) to client for debugging
+    res.status(503).json({ message: 'AI service unavailable', detail });
   }
 });
 
