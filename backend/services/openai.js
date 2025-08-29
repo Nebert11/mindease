@@ -1,5 +1,9 @@
 const OpenAI = require('openai');
 
+if (!process.env.OPENAI_API_KEY) {
+  console.warn('WARNING: OPENAI_API_KEY is not set. AI features will fail.');
+}
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
@@ -25,7 +29,7 @@ class AIService {
       Context about the user: ${JSON.stringify(context)}`;
 
       const response = await openai.chat.completions.create({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -42,8 +46,10 @@ class AIService {
         usage: response.usage
       };
     } catch (error) {
-      console.error('OpenAI API error:', error);
-      throw new Error('Failed to generate AI response');
+      const status = error?.status || error?.response?.status;
+      const providerMsg = error?.response?.data?.error?.message || error?.message || 'Unknown error';
+      console.error('OpenAI API error:', { status, providerMsg });
+      throw new Error(`AI provider error${status ? ` (${status})` : ''}: ${providerMsg}`);
     }
   }
 
