@@ -34,7 +34,7 @@ const Login: React.FC = () => {
           Sign in to your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600 dark:text-white">
-          Demo credentials: patient@mindease.com / password123
+          Demo credentials: clayjensen@gmail.com / password123
         </p>
       </div>
 
